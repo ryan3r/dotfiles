@@ -1,5 +1,10 @@
 #!/bin/bash
 
-ln -s .vimrc ~/.vimrc
-ln -s .vim ~/.vim
-ln -s .bashrc ~/.bashrc
+link() {
+	rm -f ~/$1
+	ln -s $(pwd)/$1 ~/$1
+}
+
+link .vimrc
+link .vim
+link .bashrc
