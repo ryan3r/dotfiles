@@ -1,8 +1,13 @@
 #!/bin/bash
 
 link() {
-	rm -f ~/$1
-	ln -s $(pwd)/$1 ~/$1
+    if grep -q Microsoft /proc/version; then
+        rm -f ~/$1
+        cp $(pwd)/$1 ~/$1
+    else
+	    rm -f ~/$1
+	    ln -s $(pwd)/$1 ~/$1
+    fi
 }
 
 link .vimrc
