@@ -2,3 +2,4 @@
 .vim/bundle/vim-easymotion
 .vim/bundle/vim-fugitive
 .vim/bundle/vim-surround
+.vim/bundle/nerdcommenter
