@@ -3,7 +3,7 @@
 link() {
     if grep -q Microsoft /proc/version; then
         rm -f ~/$1
-        cp $(pwd)/$1 ~/$1
+        cp -r $(pwd)/$1 ~/$1
     else
 	    rm -f ~/$1
 	    ln -s $(pwd)/$1 ~/$1
