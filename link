@@ -9,4 +9,4 @@ link .vimrc
 link .vim
 link .bashrc
 
-vim +<enter> +PluginInstall +qall
+vim +PluginInstall +qall
