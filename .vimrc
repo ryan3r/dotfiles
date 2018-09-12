@@ -12,7 +12,6 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'easymotion/vim-easymotion'
-Plugin 'tpope/vim-surround'
 Plugin 'scrooloose/nerdcommenter'
 
 " All of your Plugins must be added before the following line
@@ -35,7 +34,7 @@ vno <left> <Nop>
 vno <right> <Nop>
 vno <up> <Nop>
 
-no G Gzz
+"no G Gzz
 
 set number
 set relativenumber
@@ -45,8 +44,10 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 set complete+=kspell
+set backspace=2
 
 nmap <leader>l :set relativenumber!<enter>
+nmap <leader>t :NERDTreeToggle<enter>
 
 imap <leader>' ''<ESC>i
 imap <leader>" ""<ESC>i
@@ -76,7 +77,7 @@ endif
 set laststatus=2
 set encoding=utf-8
 
-if has("python")
+if has("python3")
     python3 from powerline.vim import setup as powerline_setup
     python3 powerline_setup()
     python3 del powerline_setup
