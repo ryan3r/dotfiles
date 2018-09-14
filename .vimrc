@@ -34,8 +34,6 @@ vno <left> <Nop>
 vno <right> <Nop>
 vno <up> <Nop>
 
-"no G Gzz
-
 set number
 set relativenumber
 set showcmd

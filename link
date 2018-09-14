@@ -1,11 +1,10 @@
 #!/bin/bash
 
 link() {
+    rm -f ~/$1
     if grep -q Microsoft /proc/version; then
-        rm -f ~/$1
         cp -r $(pwd)/$1 ~/$1
     else
-	    rm -f ~/$1
 	    ln -s $(pwd)/$1 ~/$1
     fi
 }
@@ -13,5 +12,7 @@ link() {
 link .vimrc
 link .vim
 link .bashrc
+link .screenrc
+link .profile
 
 vim +PluginInstall +qall
