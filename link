@@ -2,11 +2,7 @@
 
 link() {
     rm -f ~/$1
-    if grep -q Microsoft /proc/version; then
-        cp -r $(pwd)/$1 ~/$1
-    else
-	    ln -s $(pwd)/$1 ~/$1
-    fi
+    ln -s $(pwd)/$1 ~/$1
 }
 
 link .vimrc
