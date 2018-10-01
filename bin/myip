@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ "$1" == "tmux" ]; then
+    red="#[fg=red]"
+    white="#[fg=white]"
+fi
+
+# Check our lan connection
+router=$(ip route get 1 | head -1 | awk '{print $3}')
+ping -c 1 $router 2>&1 >/dev/null
+conn=$?
+
+lan_ip=$(ip route get 1 | head -1 | awk '{print $7}')
+
+if [ "$conn" != "0" ]; then
+    lan_ip="$red Down$white"
+fi
+
+# Display our lan ip and our external ip
+echo -n "$lan_ip"
+
+if [ "$1" != "tmux" ]; then
+    echo
+    dig +short myip.opendns.com @resolver1.opendns.com
+fi

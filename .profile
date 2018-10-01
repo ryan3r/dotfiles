@@ -20,10 +20,3 @@ fi
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
-
-# Instantiate screen
-if [ "$(screen -ls | tr -d '\r\n')" == "No Sockets found in /run/screen/S-$USER." ]; then
-    screen -dmS default -ln
-fi
-
-exec screen -xA default
