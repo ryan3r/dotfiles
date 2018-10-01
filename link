@@ -5,10 +5,13 @@ link() {
     ln -s $(pwd)/$1 ~/$1
 }
 
+mkdir -p ~/bin
+
 link .vimrc
 link .vim
 link .bashrc
-link .screenrc
+link .tmux.conf
 link .profile
+link bin/myip
 
 vim +PluginInstall +qall
