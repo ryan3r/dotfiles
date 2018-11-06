@@ -12,8 +12,6 @@ link .vim
 link .bashrc
 link .tmux.conf
 link .profile
-link bin/myip
-
-chmod +x ~/bin/myip
+rm ~/bin/myip
 
 vim +PluginInstall +qall
