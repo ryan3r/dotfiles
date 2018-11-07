@@ -3,3 +3,5 @@
 .vim/bundle/vim-fugitive
 .vim/bundle/vim-surround
 .vim/bundle/nerdcommenter
+.tmux/plugins/tmux-cpu
+.tmux/plugins/tmux-plugin-sysstat

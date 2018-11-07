@@ -16,4 +16,5 @@ link .tmux
 rm -f ~/bin/myip
 
 vim +PluginInstall +qall
-~/.tmux/plugins/tpm/bin/install_plugins
+
+echo "Don't forget to run prefix + I in tmux"
