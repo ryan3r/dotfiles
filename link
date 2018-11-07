@@ -1,7 +1,7 @@
 #!/bin/bash
 
 link() {
-    rm -f ~/$1
+    rm -rf ~/$1
     ln -s $(pwd)/$1 ~/$1
 }
 
@@ -12,6 +12,8 @@ link .vim
 link .bashrc
 link .tmux.conf
 link .profile
-rm ~/bin/myip
+link .tmux
+rm -f ~/bin/myip
 
 vim +PluginInstall +qall
+~/.tmux/plugins/tpm/bin/install_plugins
