@@ -5,7 +5,7 @@ choice=$(whiptail --notags --menu "Pick a session" 30 70 $(($(tmux ls | wc -l) +
 if [ -z "$choice" ]; then
 	exec bash -i
 elif [ "$choice" = "New" ]; then
-	exec tmux new -s "$(whiptail --inputbox "New session name" 20 50 3>&1 1>&2 2>&3)"
+	exec tmux new -s "$(whiptail --inputbox "New session name" 20 50 3>&1 1>&2 2>&3)" /bin/bash
 else
 	exec tmux attach -t $choice
 fi
