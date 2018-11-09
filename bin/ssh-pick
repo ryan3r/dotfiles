@@ -1,0 +1,8 @@
+#!/bin/bash
+choice=$(whiptail --menu "Pick a host" 20 50 $(wc -l ~/.ssh-conf | awk '{print $1}') $(cat ~/.ssh-conf | awk '{print $1"\t("$2")"}') 3>&1 1>&2 2>&3)
+
+if [ ! -z "$choice" ]; then
+	line=$(cat ~/.ssh-conf | fgrep $choice)
+	tmux rename-window "$(echo $line | awk '{print $1}')" 
+	exec ssh $(echo $line | awk '{print $2}') -p $(echo $line | awk '{print $3}')
+fi
