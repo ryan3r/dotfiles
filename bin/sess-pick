@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ ! -z "$TMUX" ]; then
+	exec bash
+fi
+
 choice=$(whiptail --notags --menu "Pick a session" 30 70 $(($(tmux ls | wc -l) + 1)) $(tmux ls -F "#{session_name} #{session_name}") "New" "New" 3>&1 1>&2 2>&3)
 
 if [ -z "$choice" ]; then
