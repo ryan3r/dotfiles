@@ -14,8 +14,9 @@ link .tmux.conf
 link .profile
 link .tmux
 rm -f ~/bin/myip
-link bin/sess-pick
-link bin/ssh-pick
+rm -f bin/sess-pick
+rm -f bin/ssh-pick
+link bin/gssh
 
 vim +PluginInstall +qall
 

@@ -3,6 +3,10 @@ choice=$(whiptail --menu "Pick a host" 20 50 $(wc -l ~/.ssh-conf | awk '{print $
 
 if [ ! -z "$choice" ]; then
 	line=$(cat ~/.ssh-conf | fgrep $choice)
-	tmux rename-window "$(echo $line | awk '{print $1}')" 
+
+	if [ ! -z "$TMUX" ]; then	
+		tmux rename-window "$(echo $line | awk '{print $1}')" 
+	fi
+
 	exec ssh $(echo $line | awk '{print $2}') -p $(echo $line | awk '{print $3}')
 fi
