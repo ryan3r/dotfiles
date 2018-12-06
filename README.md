@@ -1,5 +1,7 @@
 # Install
 
 ```
-curl https://raw.githubusercontent.com/ryan3r/dotfiles/master/install | tr -d '\r' | bash
+curl -L ryan3r.com/dot | bash
 ```
+
+You'll probably need to run reset after that
