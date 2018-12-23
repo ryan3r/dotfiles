@@ -71,6 +71,13 @@ if [ ! -z "$DEPS_NEEDED" ]; then
     fi
 fi
 
+# Run the rest of the commands as the original user
+if [ $SUDO_USER ] && [ $EUID -eq 0 ]; then
+    echo ">> su $SUDO_USER -c ~/dotfiles/update"
+    su $SUDO_USER -c ~/dotfiles/update
+    exit
+fi
+
 # Update repo and submodules
 progress "Pulling"
 cd ~/dotfiles
