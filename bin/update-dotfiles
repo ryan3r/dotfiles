@@ -45,7 +45,7 @@ print_run() {
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "git"; do
+for dep in "vim" "tmux" "find" "git" "gpg"; do
     which $dep >/dev/null
     if [ $? -eq 1 ]; then
         if [ -z "$DEPS_NEEDED" ]; then
@@ -138,6 +138,14 @@ progress "Configuring git"
 
 print_run 'git config --global user.name "Ryan Ray"'
 print_run 'git config --global user.email "ryan314r@gmail.com"'
+
+# Setup gpg and ssh
+progress "Add public pgp key"
+
+print_run "gpg --import gpg-key"
+mkdir -p ~/.ssh
+echo -e "\033[0;0m>> gpg --export-ssh-key 022189C87F23B167B4D717FDF4C376662B27FB4D > ~/.ssh/authorized_keys$ERROR_COLOR"
+gpg --export-ssh-key 022189C87F23B167B4D717FDF4C376662B27FB4D > ~/.ssh/authorized_keys
 
 # Reset the terminal before exiting
 echo -ne "\033[0;0m"
