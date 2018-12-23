@@ -2,7 +2,7 @@
 
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=6
+PROGRESS_TOTAL=7
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo "[$PROGRESS/$PROGRESS_TOTAL] $1"
@@ -25,12 +25,6 @@ done
 if [ ! -z "$DEPS_NEEDED" ]; then
     echo "Please install $DEPS_NEEDED and then run ~/dotfiles/update"
     exit 1
-fi
-
-# Continue in tmux
-if [ -z "$TMUX" ]; then
-    tmux new-session -s "Dot" -n "Update" ~/dotfiles/update
-    exit
 fi
 
 # Update repo and submodules
@@ -79,9 +73,13 @@ done
 # Install app plugins
 progress "Installing tmux plugins"
 
-./.tmux/plugins/tpm/scripts/install_plugins.sh
-tmux source-file ~/.tmux.conf
+tmux new-session -s "Dot" -n "Update" ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 
 progress "Installing vim plugins"
 
 vim +PluginInstall +qall
+
+progress "Configuring git"
+
+git config --global user.name "Ryan Ray"
+git config --global user.email "ryan314r@gmail.com"
