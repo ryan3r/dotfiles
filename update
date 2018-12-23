@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Print the progress and heading
+PROGRESS=0
+PROGRESS_TOTAL=6
+progress() {
+    PROGRESS=$(($PROGRESS + 1))
+    echo "[$PROGRESS/$PROGRESS_TOTAL] $1"
+}
+
+# Check for our dependencies
+DEPS_NEEDED=
+
+for dep in "vim" "tmux" "find" "curl" "git"; do
+    which $dep >/dev/null
+    if [ $? -eq 1 ]; then
+        if [ -z "$DEPS_NEEDED" ]; then
+            DEPS_NEEDED="$dep"
+        else
+            DEPS_NEEDED="$DEPS_NEEDED, $dep"
+        fi
+    fi
+done
+
+if [ ! -z "$DEPS_NEEDED" ]; then
+    echo "Please install $DEPS_NEEDED and then run ~/dotfiles/update"
+    exit 1
+fi
+
+# Continue in tmux
+if [ -z "$TMUX" ]; then
+    tmux new-session -s "Dot" -n "Update" ~/dotfiles/update
+    exit
+fi
+
+# Update repo and submodules
+progress "Pulling"
+cd ~/dotfiles
+# git checkout master -f
+git pull
+
+progress "Updating submodules"
+git submodule init
+git submodule update
+
+# Remove old symlinks
+progress "Removing old links"
+cd ~
+for link in $(find . -type l -not -path './dotfiles/*'); do
+    if [ ! -z "$(readlink $link | fgrep dotfiles)" ]; then
+        rm -rf $link
+    fi
+done
+
+# Install new links
+cd ~/dotfiles
+progress "Installing symlinks"
+
+for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md); do
+    if [ -f ~/$file ]; then
+        echo "Moving existing $file to $file.bak"
+        mv ~/$file ~/$file.bak
+    fi
+
+    ln -s ~/dotfiles/$file ~/$file
+done
+
+mkdir -p ~/bin
+
+for file in $(ls -1 bin); do
+    if [ -f ~/bin/$file ]; then
+        echo "Moving existing bin/$file to bin/$file.bak"
+        mv ~/bin/$file ~/bin/$file.bak
+    fi
+
+    ln -s ~/dotfiles/bin/$file ~/bin/$file
+done
+
+# Install app plugins
+progress "Installing tmux plugins"
+
+./.tmux/plugins/tpm/scripts/install_plugins.sh
+tmux source-file ~/.tmux.conf
+
+progress "Installing vim plugins"
+
+vim +PluginInstall +qall
