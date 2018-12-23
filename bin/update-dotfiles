@@ -3,7 +3,7 @@
 ERROR_COLOR="\033[1;31m"
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=8
+PROGRESS_TOTAL=9
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;36m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -45,7 +45,7 @@ print_run() {
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "git" "gpg"; do
+for dep in "vim" "tmux" "find" "git" "gpg" "cron"; do
     which $dep >/dev/null
     if [ $? -eq 1 ]; then
         if [ -z "$DEPS_NEEDED" ]; then
@@ -104,7 +104,7 @@ done
 cd ~/dotfiles
 progress "Installing symlinks"
 
-for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md); do
+for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md | fgrep -v crontab); do
     if [ -f ~/$file ]; then
         print_run "mv ~/$file ~/$file.bak"
     fi
@@ -141,6 +141,21 @@ print_run "gpg --import gpg-key"
 mkdir -p ~/.ssh
 echo -e "\033[0;0m>> gpg --export-ssh-key 022189C87F23B167B4D717FDF4C376662B27FB4D > ~/.ssh/authorized_keys$ERROR_COLOR"
 gpg --export-ssh-key 022189C87F23B167B4D717FDF4C376662B27FB4D > ~/.ssh/authorized_keys
+
+# Setup cron
+progress "Setting up crontab"
+
+CRONTMP=$(mktemp)
+echo "# From ~/dotfiles/crontab" > $CRONTMP
+cat ~/dotfiles/crontab | sed "s/{HOME}/$(echo $HOME | sed 's/\//\\\//g')/g" >> $CRONTMP
+
+if [ -f ~/.crontab ]; then
+    echo "# From ~/.crontab" >> $CRONTMP
+    cat ~/.crontab >> $CRONTMP
+fi
+
+cat $CRONTMP | crontab -
+rm $CRONTMP
 
 # Reset the terminal before exiting
 echo -ne "\033[0;0m"
