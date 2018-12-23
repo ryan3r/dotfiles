@@ -13,8 +13,6 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'easymotion/vim-easymotion'
 Plugin 'scrooloose/nerdcommenter'
-Plugin 'vim-airline/vim-airline'
-Plugin 'vim-airline/vim-airline-themes'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -42,11 +40,8 @@ imap <leader>[ []<ESC>i
 imap <leader>{ {}<ESC>i
 
 colorscheme ryan
-let g:airline_theme='base16_3024'
 
 if has("gui_running")
-    let g:airline_powerline_fonts=1
-
     set cursorline
     set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
 
