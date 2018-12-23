@@ -32,6 +32,12 @@ install_msg() {
     exit 1
 }
 
+# Print a command and then run it
+print_run() {
+    echo -e ">> $1"
+    eval "$1 >/dev/null"
+}
+
 # Check for our dependencies
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
@@ -68,12 +74,12 @@ fi
 # Update repo and submodules
 progress "Pulling"
 cd ~/dotfiles
-# git checkout master -f
-git pull
+print_run "git checkout master"
+print_run "git pull"
 
 progress "Updating submodules"
-git submodule init
-git submodule update
+print_run "git submodule init"
+print_run "git submodule update"
 
 # Remove old symlinks
 progress "Removing old links"
@@ -90,11 +96,10 @@ progress "Installing symlinks"
 
 for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md); do
     if [ -f ~/$file ]; then
-        echo "Moving existing $file to $file.bak"
-        mv ~/$file ~/$file.bak
+        print_run "mv ~/$file ~/$file.bak"
     fi
 
-    ln -s ~/dotfiles/$file ~/$file
+    print_run "ln -s ~/dotfiles/$file ~/$file"
 done
 
 mkdir -p ~/bin
@@ -111,13 +116,14 @@ done
 # Install app plugins
 progress "Installing tmux plugins"
 
-tmux new-session -s "Dot" -n "Update" ~/.tmux/plugins/tpm/scripts/install_plugins.sh
+print_run 'tmux new-session -s "Dot" -n "Update" ~/.tmux/plugins/tpm/scripts/install_plugins.sh'
 
 progress "Installing vim plugins"
 
-vim +PluginInstall +qall
+echo ">> vim +PluginInstall +qall"
+vim +PluginInstall +qall 2>&1 >/dev/null
 
 progress "Configuring git"
 
-git config --global user.name "Ryan Ray"
-git config --global user.email "ryan314r@gmail.com"
+print_run 'git config --global user.name "Ryan Ray"'
+print_run 'git config --global user.email "ryan314r@gmail.com"'
