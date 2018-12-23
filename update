@@ -42,7 +42,7 @@ print_run() {
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "curl" "git"; do
+for dep in "vim" "tmux" "find" "git"; do
     which $dep >/dev/null
     if [ $? -eq 1 ]; then
         if [ -z "$DEPS_NEEDED" ]; then
@@ -123,7 +123,8 @@ done
 # Install app plugins
 progress "Installing tmux plugins"
 
-print_run 'tmux new-session -s "Dot" -n "Update" ~/.tmux/plugins/tpm/scripts/install_plugins.sh'
+export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
+print_run "~/.tmux/plugins/tpm/scripts/install_plugins.sh"
 
 progress "Installing vim plugins"
 
