@@ -58,8 +58,8 @@ if [ ! -z "$DEPS_NEEDED" ]; then
     if [ $EUID -eq 0 ]; then
         case "$(package_manager)" in
             apt-get)
-                apt-get update
-                apt-get install -y $(echo $DEPS_NEEDED | sed 's/,//')
+                print_run "apt-get update"
+                print_run "apt-get install -y $(echo $DEPS_NEEDED | sed 's/,//g')"
                 ;;
 
             *)
