@@ -2,14 +2,39 @@
 
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=7
+PROGRESS_TOTAL=8
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo "[$PROGRESS/$PROGRESS_TOTAL] $1"
 }
 
+# Determine which package manager this system uses
+package_manager() {
+    for manager in "apt-get"; do
+        which $manager >/dev/null
+        if [ $? -eq 0 ]; then
+            echo $manager
+            return
+        fi
+    done
+}
+
+# Show the install message
+install_msg() {
+    echo "The following programs are required $DEPS_NEEDED"
+    
+    if [ "$1" == "-r" ]; then
+        echo "Either install them manually and run ~/dotfiles/update or run ~/dotfiles/update as root"
+    else
+        echo "Install them manually and run ~/dotfiles/update"
+    fi
+
+    exit 1
+}
+
 # Check for our dependencies
 DEPS_NEEDED=
+progress "Checking for and installing dependencies"
 
 for dep in "vim" "tmux" "find" "curl" "git"; do
     which $dep >/dev/null
@@ -22,9 +47,22 @@ for dep in "vim" "tmux" "find" "curl" "git"; do
     fi
 done
 
+# Install deps if root or tell the user if to do it
 if [ ! -z "$DEPS_NEEDED" ]; then
-    echo "Please install $DEPS_NEEDED and then run ~/dotfiles/update"
-    exit 1
+    if [ $EUID -eq 0 ]; then
+        case "$(package_manager)" in
+            apt-get)
+                apt-get update
+                apt-get install -y $(echo $DEPS_NEEDED | sed 's/,//')
+                ;;
+
+            *)
+                install_msg
+                ;;
+        esac
+    else
+        install_msg -r
+    fi
 fi
 
 # Update repo and submodules
