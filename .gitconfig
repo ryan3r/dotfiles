@@ -1,0 +1,6 @@
+[user]
+	name = Ryan Ray
+	email = ryan314r@gmail.com
+	signingkey = 8358BDD0B22D4DC4
+[commit]
+	gpgsign = true

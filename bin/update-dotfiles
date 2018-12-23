@@ -134,11 +134,6 @@ progress "Installing vim plugins"
 echo -e "\033[0;0m>> vim +PluginInstall +qall$ERROR_COLOR"
 vim +PluginInstall +qall 2>&1 >/dev/null
 
-progress "Configuring git"
-
-print_run 'git config --global user.name "Ryan Ray"'
-print_run 'git config --global user.email "ryan314r@gmail.com"'
-
 # Setup gpg and ssh
 progress "Add public pgp key"
 
