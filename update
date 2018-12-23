@@ -1,11 +1,12 @@
 #!/bin/bash
 
+ERROR_COLOR="\033[1;31m"
 # Print the progress and heading
 PROGRESS=0
 PROGRESS_TOTAL=8
 progress() {
     PROGRESS=$(($PROGRESS + 1))
-    echo "[$PROGRESS/$PROGRESS_TOTAL] $1"
+    echo -e "\033[0;36m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
 }
 
 # Determine which package manager this system uses
@@ -29,12 +30,14 @@ install_msg() {
         echo "Install them manually and run ~/dotfiles/update"
     fi
 
+    # Reset the terminal before exiting
+    echo -ne "\033[0;0m"
     exit 1
 }
 
 # Print a command and then run it
 print_run() {
-    echo -e ">> $1"
+    echo -e "\033[0;0m>> $1$ERROR_COLOR"
     eval "$1 >/dev/null"
 }
 
@@ -73,7 +76,7 @@ fi
 
 # Run the rest of the commands as the original user
 if [ $SUDO_USER ] && [ $EUID -eq 0 ]; then
-    echo ">> su $SUDO_USER -c ~/dotfiles/update"
+    echo -e "\033[0;0m>> su $SUDO_USER -c ~/dotfiles/update"
     su $SUDO_USER -c ~/dotfiles/update
     exit
 fi
@@ -128,10 +131,13 @@ print_run "~/.tmux/plugins/tpm/scripts/install_plugins.sh"
 
 progress "Installing vim plugins"
 
-echo ">> vim +PluginInstall +qall"
+echo -e "\033[0;0m>> vim +PluginInstall +qall$ERROR_COLOR"
 vim +PluginInstall +qall 2>&1 >/dev/null
 
 progress "Configuring git"
 
 print_run 'git config --global user.name "Ryan Ray"'
 print_run 'git config --global user.email "ryan314r@gmail.com"'
+
+# Reset the terminal before exiting
+echo -ne "\033[0;0m"
