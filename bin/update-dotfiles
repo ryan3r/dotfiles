@@ -1,13 +1,12 @@
 #!/bin/bash
 
 PGP_KEY="D9658FC1F66B8DE6EC822158AC23D0FEE5A6A895"
-ERROR_COLOR="\033[1;31m"
 # Print the progress and heading
 PROGRESS=0
 PROGRESS_TOTAL=9
 progress() {
     PROGRESS=$(($PROGRESS + 1))
-    echo -e "\033[0;36m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
+    echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
 }
 
 # Determine which package manager this system uses
@@ -31,15 +30,13 @@ install_msg() {
         echo "Install them manually and run ~/dotfiles/update"
     fi
 
-    # Reset the terminal before exiting
-    echo -ne "\033[0;0m"
     exit 1
 }
 
 # Print a command and then run it
 print_run() {
-    echo -e "\033[0;0m>> $1$ERROR_COLOR"
-    eval "$1 >/dev/null"
+    echo -e "\033[0;36m>> $1\033[0;0m"
+    eval "$1"
 }
 
 # Check for our dependencies
@@ -110,7 +107,7 @@ for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgre
         print_run "mv ~/$file ~/$file.bak"
     fi
 
-    print_run "ln -s ~/dotfiles/$file ~/$file"
+    ln -s ~/dotfiles/$file ~/$file
 done
 
 mkdir -p ~/bin
@@ -128,19 +125,17 @@ done
 progress "Installing tmux plugins"
 
 export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
-print_run "~/.tmux/plugins/tpm/scripts/install_plugins.sh"
+~/.tmux/plugins/tpm/scripts/install_plugins.sh
 
 progress "Installing vim plugins"
-
-echo -e "\033[0;0m>> vim +PluginInstall +qall$ERROR_COLOR"
-vim +PluginInstall +qall 2>&1 >/dev/null
+vim +PluginInstall +qall 2>/dev/tty >/dev/tty </dev/tty
 
 # Setup gpg and ssh
 progress "Add public pgp key"
 
 print_run "gpg --keyserver pool.sks-keyservers.net --recv-keys $PGP_KEY"
 mkdir -p ~/.ssh
-echo -e "\033[0;0m>> gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys$ERROR_COLOR"
+echo -e "\033[0;36m>> gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys\033[0;0m"
 gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys
 
 # Setup cron
@@ -157,6 +152,3 @@ fi
 
 cat $CRONTMP | crontab -
 rm $CRONTMP
-
-# Reset the terminal before exiting
-echo -ne "\033[0;0m"
