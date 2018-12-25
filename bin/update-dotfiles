@@ -78,7 +78,7 @@ fi
 # Run the rest of the commands as the original user
 if [ $SUDO_USER ] && [ $EUID -eq 0 ]; then
     echo -e "\033[0;0m>> su $SUDO_USER -c ~/dotfiles/bin/update-dotfiles"
-    su $SUDO_USER -c ~/dotfiles/update
+    su $SUDO_USER -c ~/dotfiles/bin/update-dotfiles
     exit
 fi
 
