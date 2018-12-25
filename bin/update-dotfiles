@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 PGP_KEY="D9658FC1F66B8DE6EC822158AC23D0FEE5A6A895"
 # Print the progress and heading
@@ -12,11 +13,10 @@ progress() {
 # Determine which package manager this system uses
 package_manager() {
     for manager in "apt-get"; do
-        command -v $manager >/dev/null
-        if [ $? -eq 0 ]; then
+        command -v $manager >/dev/null && {
             echo $manager
             return
-        fi
+        }
     done
 }
 
@@ -44,14 +44,13 @@ DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
 for dep in "vim" "tmux" "find" "git" "gpg" "cron"; do
-    command -v $dep >/dev/null
-    if [ $? -eq 1 ]; then
+    command -v $dep >/dev/null || {
         if [ -z "$DEPS_NEEDED" ]; then
             DEPS_NEEDED="$dep"
         else
             DEPS_NEEDED="$DEPS_NEEDED, $dep"
         fi
-    fi
+    }
 done
 
 # Install deps if root or tell the user if to do it
@@ -135,8 +134,7 @@ progress "Add public pgp key"
 
 print_run "gpg --keyserver pool.sks-keyservers.net --recv-keys $PGP_KEY"
 mkdir -p ~/.ssh
-echo -e "\033[0;36m>> gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys\033[0;0m"
-gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys
+print_run "gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys"
 
 # Setup cron
 progress "Setting up crontab"
