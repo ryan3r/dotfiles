@@ -1,5 +1,6 @@
 #!/bin/bash
 
+PGP_KEY="D9658FC1F66B8DE6EC822158AC23D0FEE5A6A895"
 ERROR_COLOR="\033[1;31m"
 # Print the progress and heading
 PROGRESS=0
@@ -137,10 +138,10 @@ vim +PluginInstall +qall 2>&1 >/dev/null
 # Setup gpg and ssh
 progress "Add public pgp key"
 
-print_run "gpg --import gpg-key"
+print_run "gpg --keyserver pool.sks-keyservers.net --recv-keys $PGP_KEY"
 mkdir -p ~/.ssh
-echo -e "\033[0;0m>> gpg --export-ssh-key 022189C87F23B167B4D717FDF4C376662B27FB4D > ~/.ssh/authorized_keys$ERROR_COLOR"
-gpg --export-ssh-key 022189C87F23B167B4D717FDF4C376662B27FB4D > ~/.ssh/authorized_keys
+echo -e "\033[0;0m>> gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys$ERROR_COLOR"
+gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys
 
 # Setup cron
 progress "Setting up crontab"
