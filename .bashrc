@@ -129,3 +129,9 @@ fi
 
 # Make sure gpg knows what to use as its tty
 export GPG_TTY=$(tty)
+
+# Setup the gpg agent
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+if [ ! -S $SSH_AUTH_SOCK ]; then
+	eval $(gpg-agent --daemon)
+fi
