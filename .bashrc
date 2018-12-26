@@ -135,3 +135,21 @@ export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 if [ ! -S $SSH_AUTH_SOCK ]; then
 	eval $(gpg-agent --daemon)
 fi
+
+# Personal bin
+if [ -d ~/bin ]; then
+	PATH="~/bin:$PATH"
+fi
+
+# Prefer vim
+command -v vi >/dev/null && {
+	export EDITOR=vi
+}
+
+command -v vim >/dev/null && {
+	export EDITOR=vim
+}
+
+command -v vi >/dev/null && (command -v vim >/dev/null || {
+	alias vim=vi
+})
