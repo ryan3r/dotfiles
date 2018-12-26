@@ -82,9 +82,14 @@ fi
 # Update repo and submodules
 progress "Pulling"
 cd ~/dotfiles
-print_run "git checkout master"
+current_revision="$(sha1sum bin/update-dotfiles)"
+print_run "git checkout -f master"
 print_run "git pull"
 chmod +x ~/dotfiles/bin/*
+
+if [ "$current_revision" != "$(sha1sum bin/update-dotfiles)" ]; then
+	exec ~/dotfiles/bin/update-dotfiles
+fi
 
 progress "Updating submodules"
 print_run "git submodule init"
