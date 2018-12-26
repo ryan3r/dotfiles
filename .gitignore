@@ -6,3 +6,4 @@
 .tmux/plugins/tmux-cpu
 .tmux/plugins/tmux-plugin-sysstat
 *.log
+*.swp
