@@ -83,6 +83,7 @@ progress "Pulling"
 cd ~/dotfiles
 print_run "git checkout master"
 print_run "git pull"
+chmod +x ~/dotfiles/bin/*
 
 progress "Updating submodules"
 print_run "git submodule init"
