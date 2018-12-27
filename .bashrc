@@ -61,7 +61,7 @@ if [ "$color_prompt" = yes ]; then
 			else
 				PS1="$PS1\[\033[1;33m\]"
 			fi
-			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null))\033[0m "
+			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null))\[\033[0m\] "
 		fi
 
 		# Show only 2 dirs
