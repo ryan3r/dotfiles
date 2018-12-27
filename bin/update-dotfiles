@@ -71,6 +71,7 @@ if [ ! -z "$DEPS_NEEDED" ]; then
         install_msg -r
     fi
 fi
+unset DEPS_NEEDED
 
 # Run the rest of the commands as the original user
 if [ $SUDO_USER ] && [ $EUID -eq 0 ]; then
@@ -90,6 +91,7 @@ chmod +x ~/dotfiles/bin/*
 if [ "$current_revision" != "$(sha1sum bin/update-dotfiles)" ]; then
 	exec ~/dotfiles/bin/update-dotfiles
 fi
+unset current_revision
 
 progress "Updating submodules"
 print_run "git submodule init"
@@ -132,6 +134,7 @@ progress "Installing tmux plugins"
 
 export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
+unset TMUX_PLUGIN_MANAGER_PATH
 
 progress "Installing vim plugins"
 vim +PluginInstall +qall 2>/dev/tty >/dev/tty </dev/tty
@@ -158,3 +161,12 @@ fi
 
 cat $CRONTMP | crontab -
 rm $CRONTMP
+
+unset PGP_KEY PGP_AUTH_KEY CRONTMP PROGRESS PROGRESS_TOTAL
+
+# Reload config
+source ~/.bashrc
+
+if [ ! -z "$TMUX" ]; then
+	tmux source-file ~/.tmux.conf
+fi
