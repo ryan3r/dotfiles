@@ -127,6 +127,9 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# Detect wsl
+grep -q Microsoft /proc/version && IS_WSL=true
+
 # Make sure gpg knows what to use as its tty
 export GPG_TTY=$(tty)
 
@@ -153,3 +156,8 @@ command -v vim >/dev/null && {
 command -v vi >/dev/null && (command -v vim >/dev/null || {
 	alias vim=vi
 })
+
+# Connect external docker engine to wsl docker client
+if $IS_WSL; then
+	(sudo bash -c 'socat UNIX-LISTEN:/var/run/docker.sock,fork,group=docker,umask=007 EXEC:"npiperelay.exe -ep -s //./pipe/docker_engine",nofork >/dev/null 2>&1' &)
+fi
