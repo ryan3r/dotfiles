@@ -70,7 +70,7 @@ if [ "$color_prompt" = yes ]; then
 			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
 		fi
 
-		PS1="$PS1${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\h\[\033[00m\]:\[\033[01;34m\]$cwd\[\033[00m\]> "
+		PS1="$PS1${debian_chroot:+($debian_chroot)}\[\033[00;32m\]\h\[\033[00m\]:\[\033[01;34m\]$cwd\[\033[00m\]$ "
 	}
 
 	PROMPT_COMMAND=custom_prompt
