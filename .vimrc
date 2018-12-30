@@ -13,6 +13,8 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'easymotion/vim-easymotion'
 Plugin 'scrooloose/nerdcommenter'
+Plugin 'drewtempelmeyer/palenight.vim'
+Plugin 'itchyny/lightline.vim'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -22,7 +24,6 @@ set rtp+=$HOME/.vim
 
 set number
 set relativenumber
-set showcmd
 syntax on
 set tabstop=4
 set shiftwidth=4
@@ -39,7 +40,15 @@ imap <leader>( ()<ESC>i
 imap <leader>[ []<ESC>i
 imap <leader>{ {}<ESC>i
 
-colorscheme ryan
+" Set the theme
+set background=dark
+colorscheme palenight
+set noshowmode
+
+" Configure the status bar
+let g:lightline = {
+	\ 'colorscheme': 'palenight',
+    \ }
 
 if has("gui_running")
     set cursorline
