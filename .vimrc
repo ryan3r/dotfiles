@@ -24,6 +24,7 @@ set rtp+=$HOME/.vim
 
 set number
 set relativenumber
+set showcmd
 syntax on
 set tabstop=4
 set shiftwidth=4
@@ -48,7 +49,36 @@ set noshowmode
 " Configure the status bar
 let g:lightline = {
 	\ 'colorscheme': 'palenight',
+	\ 'active': {
+	\ 'left': [
+	\ 	[ 'mode', 'paste', 'mode2' ],
+	\	[ 'readonly', 'filename', 'modified' ],
+	\	[ 'gitbranch' ]
+	\ ],
+	\ 'right': [
+	\ 	[ 'lineinfo' ],
+	\ 	[ 'percent' ],
+	\ 	[ 'fileformat', 'filetype' ]
+	\ ],
+	\ },
+	\ 'inactive': {
+	\ 	'right': [],
+	\ },
+	\ 'component_function': {
+	\	'gitbranch': 'fugitive#head',
+	\	'readonly': 'LightLineReadOnly',
+	\ },
     \ }
+
+"function! LightLineMode()
+"	return expand('%:p') =~# '^fugitive' ? 'Fugitive' : 
+"		\ &filetype =~# '^NERD_tree' ? : 'NerdTree'
+"		\ lightline#mode()
+"endfunction
+
+function! LightLineReadOnly()
+		return &readonly && &filetype !~# '\v(help|fugitive)' ? 'RO' : ''
+endfunction
 
 if has("gui_running")
     set cursorline
