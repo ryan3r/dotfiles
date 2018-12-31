@@ -136,7 +136,7 @@ export GPG_TTY=$(tty)
 # Setup the gpg agent
 export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 if [ ! -S $SSH_AUTH_SOCK ]; then
-	eval $(gpg-agent --daemon)
+	eval $(gpg-agent --daemon --enable-ssh-support)
 fi
 
 # Personal bin
