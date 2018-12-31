@@ -1,4 +1,5 @@
 .vim/view
+.vim/site
 .vim/bundle/nerdtree
 .vim/bundle/vim-easymotion
 .vim/bundle/vim-fugitive
