@@ -1,4 +1,4 @@
-" Begin vundle config
+" Vundle config{{{
 set nocompatible              " be iMproved, required
 filetype off                  " required
 
@@ -21,7 +21,8 @@ call vundle#end()            " required
 filetype plugin indent on    " required
 
 set rtp+=$HOME/.vim
-
+"}}}
+" General settings{{{
 set number
 set relativenumber
 set showcmd
@@ -30,7 +31,10 @@ set tabstop=4
 set shiftwidth=4
 set complete+=kspell
 set backspace=2
-
+let NERDTreeShowHidden=1
+set foldmethod=marker
+"}}}
+" Key bindings{{{
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
 nmap <leader>t :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
@@ -40,25 +44,29 @@ imap <leader>" ""<ESC>i
 imap <leader>( ()<ESC>i
 imap <leader>[ []<ESC>i
 imap <leader>{ {}<ESC>i
-
-" Set the theme
+" }}}
+" Set the theme{{{
 set background=dark
 colorscheme palenight
 set noshowmode
-
-" Configure the status bar
+"}}}
+" Autocommands{{{
+autocmd BufWinLeave *.* mkview
+autocmd BufWinEnter *.* silent loadview 
+"}}}
+" Configure the status bar {{{
 let g:lightline = {
 	\ 'colorscheme': 'palenight',
 	\ 'active': {
 	\ 'left': [
-	\ 	[ 'mode', 'paste', 'mode2' ],
+	\ 	[ 'mode', 'paste' ],
 	\	[ 'readonly', 'filename', 'modified' ],
-	\	[ 'gitbranch' ]
+	\	[ 'filetype' ]
 	\ ],
 	\ 'right': [
-	\ 	[ 'lineinfo' ],
-	\ 	[ 'percent' ],
-	\ 	[ 'fileformat', 'filetype' ]
+	\ 	[ 'gitbranch' ],
+	\ 	[ 'percent', 'lineinfo'],
+	\ 	[ 'fileformat' ]
 	\ ],
 	\ },
 	\ 'inactive': {
@@ -67,19 +75,31 @@ let g:lightline = {
 	\ 'component_function': {
 	\	'gitbranch': 'fugitive#head',
 	\	'readonly': 'LightLineReadOnly',
+	\	'mode': 'LightLineMode',
+	\	'filetype': 'LightLineFileType',
+	\	'fileformat': 'LightLineFileFormat',
 	\ },
     \ }
 
-"function! LightLineMode()
-"	return expand('%:p') =~# '^fugitive' ? 'Fugitive' : 
-"		\ &filetype =~# '^NERD_tree' ? : 'NerdTree'
-"		\ lightline#mode()
-"endfunction
-
-function! LightLineReadOnly()
-		return &readonly && &filetype !~# '\v(help|fugitive)' ? 'RO' : ''
+function! LightLineMode()
+	return expand('%:p') =~# '^fugitive' ? 'Fugitive' :
+		\ expand('%:t') =~# '^NERD_tree' ? 'NERDTree' :
+		\ lightline#mode()
 endfunction
 
+function! LightLineReadOnly()
+	return &readonly && &filetype !~# '\v(help|fugitive)' && winwidth(0) >= 50 ? 'RO' : ''
+endfunction
+
+function! LightLineFileType()
+	return winwidth(0) >= 75 ? &filetype : ''
+endfunction
+
+function! LightLineFileFormat()
+	return winwidth(0) >= 75 ? &fileformat : ''
+endfunction
+" }}}
+" GUI specific options{{{
 if has("gui_running")
     set cursorline
     set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
@@ -92,7 +112,8 @@ if has("gui_running")
     set guioptions-=L
     set guioptions-=r
 endif
-
-" Show the status line
+"}}}
+" Show the status line{{{
 set laststatus=2
 set encoding=utf-8
+"}}}
