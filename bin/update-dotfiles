@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PGP_KEY="D9658FC1F66B8DE6EC822158AC23D0FEE5A6A895"
+# {{{
 PGP_AUTH_KEY="919BBD41D76035D6D3B25E8BFB3254241470A5CC"
 # Print the progress and heading
 PROGRESS=0
@@ -39,12 +39,12 @@ print_run() {
     echo -e "\033[0;36m>> $1\033[0;0m"
     eval "$1"
 }
-
-# Check for our dependencies
+# }}}
+# Check for our dependencies {{{
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "git" "gpg" "cron"; do
+for dep in "vim" "tmux" "find" "git" "gpg"; do
     command -v $dep >/dev/null || {
         if [ -z "$DEPS_NEEDED" ]; then
             DEPS_NEEDED="$dep"
@@ -78,8 +78,8 @@ if [ $SUDO_USER ] && [ $EUID -eq 0 ]; then
     su $SUDO_USER -c ~/dotfiles/bin/update-dotfiles
     exit
 fi
-
-# Update repo and submodules
+# }}}
+# Update repo and submodules {{{
 progress "Pulling"
 cd ~/dotfiles
 current_revision="$(sha1sum bin/update-dotfiles)"
@@ -94,8 +94,8 @@ fi
 progress "Updating submodules"
 print_run "git submodule init"
 print_run "git submodule update"
-
-# Remove old symlinks
+# }}}
+# Remove old symlinks {{{
 progress "Removing old links"
 cd ~
 for link in $(find . -type l -not -path './dotfiles/*'); do
@@ -103,8 +103,8 @@ for link in $(find . -type l -not -path './dotfiles/*'); do
         rm -rf $link
     fi
 done
-
-# Install new links
+# }}}
+# Install new links {{{
 cd ~/dotfiles
 progress "Installing symlinks"
 
@@ -126,8 +126,8 @@ for file in $(ls -1 bin); do
 
     ln -s ~/dotfiles/bin/$file ~/bin/$file
 done
-
-# Install app plugins
+# }}}
+# Install app plugins {{{
 progress "Installing tmux plugins"
 
 export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
@@ -135,26 +135,34 @@ export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
 
 progress "Installing vim plugins"
 vim +PluginInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+# }}}
+# Setup gpg and ssh {{{
+progress "Add public ssh key"
 
-# Setup gpg and ssh
-progress "Add public pgp key"
-
-print_run "gpg --keyserver pool.sks-keyservers.net --recv-keys $PGP_KEY"
 mkdir -p ~/.ssh
-print_run "gpg --export-ssh-key $PGP_KEY > ~/.ssh/authorized_keys"
-print_run "echo $PGP_AUTH_KEY > ~/.gnupg/sshcontrol"
 
-# Setup cron
-progress "Setting up crontab"
-
-CRONTMP=$(mktemp)
-echo "# From ~/dotfiles/crontab" > $CRONTMP
-cat ~/dotfiles/crontab | sed "s/{HOME}/$(echo $HOME | sed 's/\//\\\//g')/g" >> $CRONTMP
-
-if [ -f ~/.crontab ]; then
-    echo "# From ~/.crontab" >> $CRONTMP
-    cat ~/.crontab >> $CRONTMP
+# Remove old ssh keys
+if [ -f '~/.ssh/authorized_keys' ]; then
+	sed -e 's/ssh-rsa [A-Za-z0-9+/=]* openpgp:0xE5441D5C//' -i ~/.ssh/authorized_keys
+	sed -e 's/ssh-rsa [A-Za-z0-9+/=]* ryan314r@gmail.com//' -i ~/.ssh/authorized_keys
 fi
 
-cat $CRONTMP | crontab -
-rm $CRONTMP
+print_run "curl -L https://ryan3r.com/ssh >> ~/.ssh/authorized_keys"
+# }}}
+# Setup cron {{{
+progress "Setting up crontab"
+
+command -v $manager >/dev/null || {
+	CRONTMP=$(mktemp)
+	echo "# From ~/dotfiles/crontab" > $CRONTMP
+	cat ~/dotfiles/crontab | sed "s/{HOME}/$(echo $HOME | sed 's/\//\\\//g')/g" >> $CRONTMP
+
+	if [ -f ~/.crontab ]; then
+		echo "# From ~/.crontab" >> $CRONTMP
+		cat ~/.crontab >> $CRONTMP
+	fi
+
+	cat $CRONTMP | crontab -
+	rm $CRONTMP
+}
+# }}}
