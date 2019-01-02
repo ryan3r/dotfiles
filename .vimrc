@@ -9,7 +9,6 @@ call vundle#begin('$HOME/.vim/bundle/')
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-Plugin 'tpope/vim-fugitive'
 Plugin 'scrooloose/nerdtree'
 Plugin 'easymotion/vim-easymotion'
 Plugin 'scrooloose/nerdcommenter'
@@ -51,8 +50,8 @@ colorscheme palenight
 set noshowmode
 "}}}
 " Autocommands{{{
-"autocmd BufWinLeave *.* mkview
-"autocmd BufWinEnter *.* silent loadview 
+autocmd BufWinLeave *.* mkview
+autocmd BufWinEnter *.* silent loadview 
 "}}}
 " Configure the status bar {{{
 let g:lightline = {
@@ -64,7 +63,6 @@ let g:lightline = {
 	\	[ 'filetype' ]
 	\ ],
 	\ 'right': [
-	\ 	[ 'gitbranch' ],
 	\ 	[ 'percent', 'lineinfo'],
 	\ 	[ 'fileformat' ]
 	\ ],
@@ -73,7 +71,6 @@ let g:lightline = {
 	\ 	'right': [],
 	\ },
 	\ 'component_function': {
-	\	'gitbranch': 'fugitive#head',
 	\	'readonly': 'LightLineReadOnly',
 	\	'mode': 'LightLineMode',
 	\	'filetype': 'LightLineFileType',
