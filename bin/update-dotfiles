@@ -105,7 +105,7 @@ if [ -f '~/.ssh/authorized_keys' ]; then
 fi
 
 print_run "curl -L https://ryan3r.com/ssh > ~/.ssh/ryan314r.pub"
-print_run "ssh-keygen -lf ~/.ssh/ryan314r.pub"
+command -v ssh-keygen && print_run "ssh-keygen -lf ~/.ssh/ryan314r.pub"
 print_run "cat ~/.ssh/ryan314r.pub >> authorized_keys"
 rm ~/.ssh/ryan314r.pub
 # }}}
