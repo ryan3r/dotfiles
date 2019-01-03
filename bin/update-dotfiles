@@ -93,18 +93,21 @@ export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
 progress "Installing vim plugins"
 vim +PluginInstall +qall 2>/dev/tty >/dev/tty </dev/tty
 # }}}
-# Setup gpg and ssh {{{
+# Setup ssh {{{
 progress "Add public ssh key"
 
 mkdir -p ~/.ssh
 
 # Remove old ssh keys
 if [ -f '~/.ssh/authorized_keys' ]; then
-	sed -e 's/ssh-rsa [A-Za-z0-9+/=]* openpgp:0xE5441D5C//' -i ~/.ssh/authorized_keys
-	sed -e 's/ssh-rsa [A-Za-z0-9+/=]* ryan314r@gmail.com//' -i ~/.ssh/authorized_keys
+	print_run "sed -e 's/ssh-rsa [A-Za-z0-9+/=]* openpgp:0xE5441D5C//' -i ~/.ssh/authorized_keys"
+	print_run "sed -e 's/ssh-rsa [A-Za-z0-9+/=]* ryan314r@gmail.com//' -i ~/.ssh/authorized_keys"
 fi
 
-print_run "curl -L https://ryan3r.com/ssh >> ~/.ssh/authorized_keys"
+print_run "curl -L https://ryan3r.com/ssh > ~/.ssh/ryan314r.pub"
+print_run "ssh-keygen -lf ~/.ssh/ryan314r.pub"
+print_run "cat ~/.ssh/ryan314r.pub >> authorized_keys"
+rm ~/.ssh/ryan314r.pub
 # }}}
 # Setup cron {{{
 progress "Setting up crontab"
