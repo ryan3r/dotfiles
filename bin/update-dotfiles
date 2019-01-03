@@ -2,36 +2,12 @@
 set -e
 
 # {{{
-PGP_AUTH_KEY="919BBD41D76035D6D3B25E8BFB3254241470A5CC"
 # Print the progress and heading
 PROGRESS=0
 PROGRESS_TOTAL=9
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
-}
-
-# Determine which package manager this system uses
-package_manager() {
-    for manager in "apt-get"; do
-        command -v $manager >/dev/null && {
-            echo $manager
-            return
-        }
-    done
-}
-
-# Show the install message
-install_msg() {
-    echo "The following programs are required $DEPS_NEEDED"
-    
-    if [ "$1" == "-r" ]; then
-        echo "Either install them manually and run ~/dotfiles/update or run ~/dotfiles/update as root"
-    else
-        echo "Install them manually and run ~/dotfiles/update"
-    fi
-
-    exit 1
 }
 
 # Print a command and then run it
@@ -44,7 +20,7 @@ print_run() {
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "git" "gpg"; do
+for dep in "vim" "tmux" "find" "git"; do
     command -v $dep >/dev/null || {
         if [ -z "$DEPS_NEEDED" ]; then
             DEPS_NEEDED="$dep"
@@ -56,27 +32,8 @@ done
 
 # Install deps if root or tell the user if to do it
 if [ ! -z "$DEPS_NEEDED" ]; then
-    if [ $EUID -eq 0 ]; then
-        case "$(package_manager)" in
-            apt-get)
-                print_run "apt-get update"
-                print_run "apt-get install -y $(echo $DEPS_NEEDED | sed 's/,//g')"
-                ;;
-
-            *)
-                install_msg
-                ;;
-        esac
-    else
-        install_msg -r
-    fi
-fi
-
-# Run the rest of the commands as the original user
-if [ $SUDO_USER ] && [ $EUID -eq 0 ]; then
-    echo -e "\033[0;0m>> su $SUDO_USER -c ~/dotfiles/bin/update-dotfiles"
-    su $SUDO_USER -c ~/dotfiles/bin/update-dotfiles
-    exit
+    echo "Please install $DEPS_NEEDED and then rerun this script"
+	exit 1
 fi
 # }}}
 # Update repo and submodules {{{
