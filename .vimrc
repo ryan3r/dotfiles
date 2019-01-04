@@ -50,8 +50,8 @@ colorscheme palenight
 set noshowmode
 "}}}
 " Autocommands{{{
-autocmd BufWinLeave *.* mkview
-autocmd BufWinEnter *.* silent loadview 
+"autocmd BufWinLeave *.* mkview
+"autocmd BufWinEnter *.* silent loadview 
 "}}}
 " Configure the status bar {{{
 let g:lightline = {
