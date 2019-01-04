@@ -158,6 +158,6 @@ command -v vi >/dev/null && (command -v vim >/dev/null || {
 })
 
 # Connect external docker engine to wsl docker client
-if $IS_WSL; then
+if $IS_WSL && [ ! -S /var/run/docker.sock ]; then
 	(sudo bash -c 'socat UNIX-LISTEN:/var/run/docker.sock,fork,group=docker,umask=007 EXEC:"npiperelay.exe -ep -s //./pipe/docker_engine",nofork >/dev/null 2>&1' &)
 fi
