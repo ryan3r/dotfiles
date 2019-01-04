@@ -1,25 +1,18 @@
-" Vundle config{{{
-set nocompatible              " be iMproved, required
-filetype off                  " required
+set nocompatible
 
-" set the runtime path to include Vundle and initialize
-set rtp+=$HOME/.vim/bundle/Vundle.vim/
-call vundle#begin('$HOME/.vim/bundle/')
+" Plug config{{{
+call plug#begin('$HOME/.vim/bundle/')
 
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'easymotion/vim-easymotion'
+Plug 'scrooloose/nerdcommenter'
+Plug 'drewtempelmeyer/palenight.vim'
+Plug 'itchyny/lightline.vim'
 
-Plugin 'scrooloose/nerdtree'
-Plugin 'easymotion/vim-easymotion'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'drewtempelmeyer/palenight.vim'
-Plugin 'itchyny/lightline.vim'
+call plug#end()
 
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-
-set rtp+=$HOME/.vim
+" Open plug in a new window
+let g:plug_window = '-tabnew'
 "}}}
 " General settings{{{
 set number
@@ -46,8 +39,11 @@ imap <leader>{ {}<ESC>i
 " }}}
 " Set the theme{{{
 set background=dark
-colorscheme palenight
 set noshowmode
+
+if !empty(globpath(&rtp, 'colors/palenight.vim'))
+	colorscheme palenight
+endif
 "}}}
 " Autocommands{{{
 "autocmd BufWinLeave *.* mkview

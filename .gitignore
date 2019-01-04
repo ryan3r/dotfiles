@@ -1,13 +1,7 @@
 .vim/view
 .vim/site
-.vim/bundle/nerdtree
-.vim/bundle/vim-easymotion
-.vim/bundle/vim-fugitive
-.vim/bundle/vim-surround
-.vim/bundle/nerdcommenter
-.vim/bundle/lightline.vim
-.vim/bundle/palenight.vim
-.vim/bundle/vim
+.vim/autoload
+.vim/plugged
 .tmux/plugins/tmux-cpu
 .tmux/plugins/tmux-plugin-sysstat
 *.log

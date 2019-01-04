@@ -4,7 +4,7 @@ set -e
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=9
+PROGRESS_TOTAL=8
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -20,7 +20,7 @@ print_run() {
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "git"; do
+for dep in "vim" "tmux" "find" "git" "curl"; do
     command -v $dep >/dev/null || {
         if [ -z "$DEPS_NEEDED" ]; then
             DEPS_NEEDED="$dep"
@@ -85,13 +85,15 @@ for file in $(ls -1 bin); do
 done
 # }}}
 # Install app plugins {{{
-progress "Installing tmux plugins"
+progress "Installing app plugins"
 
 export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
 ~/.tmux/plugins/tpm/scripts/install_plugins.sh
 
-progress "Installing vim plugins"
-vim +PluginInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+vim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
 # }}}
 # Setup ssh {{{
 progress "Add public ssh key"
