@@ -130,13 +130,26 @@ fi
 # Detect wsl
 grep -q Microsoft /proc/version && IS_WSL=true
 
-# Make sure gpg knows what to use as its tty
-export GPG_TTY=$(tty)
+# Make sure the ssh-agent is running and configured
+start_ssh_agent() {
+	ssh-agent > ~/.ssh-agent-env
+	sed -i 's/echo Agent pid [0-9]*;//' ~/.ssh-agent-env
+	source ~/.ssh-agent-env
 
-# Setup the gpg agent
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-if [ ! -S $SSH_AUTH_SOCK ]; then
-	eval $(gpg-agent --daemon --enable-ssh-support)
+	if [ "$(ssh-add -l 2>/dev/null)" == "The agent has no identities." ]; then
+		echo 'The ssh agent does not have any keys yet. Run `ssh-add` to add one.'
+	fi
+}
+
+if [ ! -f ~/.ssh-agent-env ]; then
+	start_ssh_agent
+fi
+
+source ~/.ssh-agent-env
+
+if [ ! -S "$SSH_AUTH_SOCK" ]; then
+	start_ssh_agent
+	source ~/.ssh-agent-env
 fi
 
 # Personal bin
