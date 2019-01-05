@@ -8,6 +8,16 @@ Plug 'easymotion/vim-easymotion'
 Plug 'scrooloose/nerdcommenter'
 Plug 'drewtempelmeyer/palenight.vim'
 Plug 'itchyny/lightline.vim'
+Plug 'fatih/vim-go'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-commentary'
+Plug 'sgur/vim-editorconfig'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
+
+if v:version >= 703
+	Plug 'mhinz/vim-signify'
+endif
 
 call plug#end()
 
