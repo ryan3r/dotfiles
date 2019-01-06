@@ -1,7 +1,7 @@
 set nocompatible
 
 " Plug config{{{
-call plug#begin('$HOME/.vim/bundle/')
+call plug#begin('$HOME/.vim/plugged/')
 
 Plug 'scrooloose/nerdtree'
 Plug 'easymotion/vim-easymotion'
@@ -16,6 +16,7 @@ Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 
 if v:version >= 703
+	let g:signify_realtime=1
 	Plug 'mhinz/vim-signify'
 endif
 
@@ -116,8 +117,4 @@ if has("gui_running")
     set guioptions-=L
     set guioptions-=r
 endif
-"}}}
-" Show the status line{{{
-set laststatus=2
-set encoding=utf-8
 "}}}

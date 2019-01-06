@@ -147,7 +147,7 @@ fi
 
 source ~/.ssh-agent-env
 
-if [ ! -S "$SSH_AUTH_SOCK" ]; then
+if [ "$(ssh-add 2>&1)" == "Error connecting to agent: Connection refused" ]; then
 	start_ssh_agent
 	source ~/.ssh-agent-env
 fi
