@@ -42,6 +42,7 @@ set foldmethod=marker
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
 nmap <leader>tvim-scripts/FuzzyFinder :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
+nmap <leader>p :CtrlPBuffer
 
 imap <leader>' ''<ESC>i
 imap <leader>" ""<ESC>i
