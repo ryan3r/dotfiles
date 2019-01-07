@@ -11,7 +11,7 @@ Plug 'itchyny/lightline.vim'
 Plug 'fatih/vim-go'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-commentary'
-Plug 'kien/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 Plug 'sgur/vim-editorconfig'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
@@ -42,7 +42,6 @@ set foldmethod=marker
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
 nmap <leader>tvim-scripts/FuzzyFinder :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
-nmap <leader>o :CtrlP<enter>
 
 imap <leader>' ''<ESC>i
 imap <leader>" ""<ESC>i
