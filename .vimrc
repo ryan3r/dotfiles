@@ -37,6 +37,7 @@ set complete+=kspell
 set backspace=2
 let NERDTreeShowHidden=1
 set foldmethod=marker
+set laststatus=2
 "}}}
 " Key bindings{{{
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
