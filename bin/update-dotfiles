@@ -52,13 +52,11 @@ progress "Updating submodules"
 print_run "git submodule init"
 print_run "git submodule update"
 # }}}
-# Remove old symlinks {{{
-progress "Removing old links"
-KEEP_DOTFILES=1 ~/bin/cleanup-dotfiles
-# }}}
-# Install new links {{{
+# Install links {{{
 cd ~/dotfiles
 progress "Installing symlinks"
+
+KEEP_DOTFILES=1 ~/dotfiles/bin/cleanup-dotfiles
 
 for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md | fgrep -v crontab); do
     if [ -f ~/$file ]; then
