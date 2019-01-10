@@ -4,7 +4,7 @@ set -e
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=8
+PROGRESS_TOTAL=6
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -54,12 +54,7 @@ print_run "git submodule update"
 # }}}
 # Remove old symlinks {{{
 progress "Removing old links"
-cd ~
-for link in $(find . -type l -not -path './dotfiles/*'); do
-    if [ ! -z "$(readlink $link | fgrep dotfiles)" ]; then
-        rm -rf $link
-    fi
-done
+KEEP_DOTFILES=1 ~/bin/cleanup-dotfiles
 # }}}
 # Install new links {{{
 cd ~/dotfiles
@@ -94,37 +89,4 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
 	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 vim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
-# }}}
-# Setup ssh {{{
-progress "Add public ssh key"
-
-mkdir -p ~/.ssh
-
-# Remove old ssh keys
-if [ -f '~/.ssh/authorized_keys' ]; then
-	print_run "sed -e 's/ssh-rsa [A-Za-z0-9+/=]* openpgp:0xE5441D5C//' -i ~/.ssh/authorized_keys"
-	print_run "sed -e 's/ssh-rsa [A-Za-z0-9+/=]* ryan314r@gmail.com//' -i ~/.ssh/authorized_keys"
-fi
-
-print_run "curl -L https://ryan3r.com/ssh > ~/.ssh/ryan314r.pub"
-command -v ssh-keygen && print_run "ssh-keygen -lf ~/.ssh/ryan314r.pub"
-print_run "cat ~/.ssh/ryan314r.pub >> authorized_keys"
-rm ~/.ssh/ryan314r.pub
-# }}}
-# Setup cron {{{
-progress "Setting up crontab"
-
-command -v $manager >/dev/null || {
-	CRONTMP=$(mktemp)
-	echo "# From ~/dotfiles/crontab" > $CRONTMP
-	cat ~/dotfiles/crontab | sed "s/{HOME}/$(echo $HOME | sed 's/\//\\\//g')/g" >> $CRONTMP
-
-	if [ -f ~/.crontab ]; then
-		echo "# From ~/.crontab" >> $CRONTMP
-		cat ~/.crontab >> $CRONTMP
-	fi
-
-	cat $CRONTMP | crontab -
-	rm $CRONTMP
-}
 # }}}
