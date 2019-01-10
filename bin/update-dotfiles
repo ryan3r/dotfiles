@@ -58,7 +58,7 @@ progress "Installing symlinks"
 
 KEEP_DOTFILES=1 ~/dotfiles/bin/cleanup-dotfiles
 
-for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md | fgrep -v crontab); do
+for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md); do
     if [ -f ~/$file ]; then
         print_run "mv ~/$file ~/$file.bak"
     fi
