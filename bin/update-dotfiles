@@ -4,7 +4,7 @@ set -e
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=6
+PROGRESS_TOTAL=5
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"

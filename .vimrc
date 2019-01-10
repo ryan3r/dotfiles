@@ -41,7 +41,7 @@ set laststatus=2
 "}}}
 " Key bindings{{{
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
-nmap <leader>tvim-scripts/FuzzyFinder :NERDTreeToggle<enter>
+nmap <leader>t :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
 nmap <leader>p :CtrlPBuffer<enter>
 
