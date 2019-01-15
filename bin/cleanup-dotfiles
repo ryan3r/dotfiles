@@ -1,9 +1,11 @@
 #!/bin/bash
 
 # If this script gets sourced wait until the shell closes and then run this
-if [ "$0" == "$BASH_SOURCE" ]; then
+if [[ $_ != $0 ]]; then
 	trap ~/bin/cleanup-dotfiles EXIT
 else
+	set -e
+
 	# Remove all simlinks that point to the dotfiles
 	cd ~
 	for link in $(find . -type l -not -path './dotfiles/*'); do
@@ -13,7 +15,9 @@ else
 	done
 
 	# Remove dotfiles
-	if [ ! -z "$KEEP_DOTFILES" ]; then
+	if [ -z "$KEEP_DOTFILES" ]; then
 		rm -rf ~/dotfiles
 	fi
+
+	echo "Dotfiles removed"
 fi
