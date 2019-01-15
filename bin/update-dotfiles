@@ -17,22 +17,19 @@ print_run() {
 }
 # }}}
 # Check for our dependencies {{{
-DEPS_NEEDED=
-progress "Checking for and installing dependencies"
+progress "Checking for dependencies"
 
-for dep in "find" "git"; do
-    command -v $dep >/dev/null || {
-        if [ -z "$DEPS_NEEDED" ]; then
-            DEPS_NEEDED="$dep"
-        else
-            DEPS_NEEDED="$DEPS_NEEDED, $dep"
-        fi
-    }
-done
+command -v find || {
+	echo "Please install find"
+	depExit=1
+}
 
-# Install deps if root or tell the user if to do it
-if [ ! -z "$DEPS_NEEDED" ]; then
-    echo "Please install $DEPS_NEEDED and then rerun this script"
+command -v git || {
+	echo "Please install git"
+	depExit=1
+}
+
+if [ ! -z "$depExit" ]; then
 	exit 1
 fi
 # }}}
