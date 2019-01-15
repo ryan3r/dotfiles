@@ -20,7 +20,7 @@ print_run() {
 DEPS_NEEDED=
 progress "Checking for and installing dependencies"
 
-for dep in "vim" "tmux" "find" "git" "curl"; do
+for dep in "find" "git"; do
     command -v $dep >/dev/null || {
         if [ -z "$DEPS_NEEDED" ]; then
             DEPS_NEEDED="$dep"
@@ -52,13 +52,15 @@ if [ -z "$NO_PULL" ]; then
 	progress "Updating submodules"
 	print_run "git submodule init"
 	print_run "git submodule update"
+else
+	echo "Not pulling because the env var NO_PULL is set"
 fi
 # }}}
 # Install links {{{
 cd ~/dotfiles
 progress "Installing symlinks"
 
-KEEP_DOTFILES=1 ~/dotfiles/bin/cleanup-dotfiles
+KEEP_DOTFILES=1 ~/dotfiles/bin/cleanup-dotfiles >/dev/null
 
 for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgrep -v bin | fgrep -v README.md); do
     if [ -f ~/$file ]; then
@@ -82,11 +84,30 @@ done
 # Install app plugins {{{
 progress "Installing app plugins"
 
-export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
-~/.tmux/plugins/tpm/scripts/install_plugins.sh
+command -v tmux >/dev/null && {
+	export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
+	~/.tmux/plugins/tpm/scripts/install_plugins.sh
+} || echo "Tmux not found. skipping."
 
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+command -v wget >/dev/null && hasWget=1
+command -v curl >/dev/null && hasCurl=1
+plugReady=1
+
+if [ ! -z "$hasWget" ]; then
+	mkdir -p ~/.vim/autoload
+		wget -qO ~/.vim/autoload/plug.vim \
 	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+elif [ ! -z "$hasCurl" ]; then
+	curl -s -fLo ~/.vim/autoload/plug.vim --create-dirs \
+			https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+else
+	echo "Could not find curl or wget. skipping vim."
+	unset plugReady
+fi
 
-vim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+if [ ! -z "$plugReady" ] && command -v vim >/dev/null; then
+	vim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+else
+	echo "Vim not found. skipping."
+fi
 # }}}
