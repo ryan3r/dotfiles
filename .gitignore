@@ -1,8 +1,4 @@
-.vim/view
-.vim/site
-.vim/autoload
-.vim/plugged
-.tmux/plugins/tmux-cpu
-.tmux/plugins/tmux-plugin-sysstat
+.vim
+.tmux
 *.log
 *.swp
