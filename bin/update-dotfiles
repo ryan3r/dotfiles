@@ -19,12 +19,12 @@ print_run() {
 # Check for our dependencies {{{
 progress "Checking for dependencies"
 
-command -v find || {
+command -v find >/dev/null || {
 	echo "Please install find"
 	depExit=1
 }
 
-command -v git || {
+command -v git >/dev/null || {
 	echo "Please install git"
 	depExit=1
 }
@@ -48,10 +48,10 @@ if [ -z "$NO_PULL" ]; then
 	
 	if [ -d .tmux/plugins/tpm ]; then
 		pushd .tmux/plugins/tmp
-		git pull
+		print_run "git pull"
 		popd
 	else
-		git clone https://github.com/tmux-plugins/tpm .tmux/plugins/tmp
+		print_run "git clone https://github.com/tmux-plugins/tpm .tmux/plugins/tmp"
 	fi
 else
 	echo "Not pulling because the env var NO_PULL is set"
