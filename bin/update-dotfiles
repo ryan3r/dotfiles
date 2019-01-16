@@ -4,7 +4,7 @@ set -e
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=5
+PROGRESS_TOTAL=4
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -33,7 +33,7 @@ if [ ! -z "$depExit" ]; then
 	exit 1
 fi
 # }}}
-# Update repo and submodules {{{
+# Update repo and tmp {{{
 progress "Pulling"
 if [ -z "$NO_PULL" ]; then
 	cd ~/dotfiles
@@ -46,9 +46,13 @@ if [ -z "$NO_PULL" ]; then
 		exec ~/dotfiles/bin/update-dotfiles
 	fi
 	
-	progress "Updating submodules"
-	print_run "git submodule init"
-	print_run "git submodule update"
+	if [ -d .tmux/plugins/tpm ]; then
+		pushd .tmux/plugins/tmp
+		git pull
+		popd
+	else
+		git clone https://github.com/tmux-plugins/tpm .tmux/plugins/tmp
+	fi
 else
 	echo "Not pulling because the env var NO_PULL is set"
 fi
