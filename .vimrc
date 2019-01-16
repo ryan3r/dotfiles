@@ -15,6 +15,9 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'sgur/vim-editorconfig'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
+Plug 'tmux-plugins/vim-tmux'
+Plug 'tmux-plugins/vim-tmux-focus-events'
+Plug 'roxma/vim-tmux-clipboard'
 
 if v:version >= 703
 	let g:signify_realtime=1
