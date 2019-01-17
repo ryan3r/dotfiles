@@ -87,7 +87,7 @@ progress "Installing app plugins"
 
 command -v tmux >/dev/null && {
 	export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
-	~/.tmux/plugins/tpm/scripts/install_plugins.sh
+	~/dotfiles/.tmux/plugins/tpm/scripts/install_plugins.sh
 } || echo "Tmux not found. skipping."
 
 command -v wget >/dev/null && hasWget=1
