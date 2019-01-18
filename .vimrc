@@ -51,12 +51,17 @@ nmap <leader>l :set relativenumber!<enter> :set number!<enter>
 nmap <leader>t :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
 nmap <leader>p :CtrlPBuffer<enter>
+nmap <leader>r :source .vimrc<enter> :echo "Config reloaded"<enter>
 
-imap <leader>' ''<ESC>i
-imap <leader>" ""<ESC>i
-imap <leader>( ()<ESC>i
-imap <leader>[ []<ESC>i
-imap <leader>{ {}<ESC>i
+" Switch vim windows
+nmap <C-j> <C-W>j
+nmap <C-k> <C-W>k
+nmap <C-l> <C-W>l
+nmap <C-h> <C-W>h
+
+" Switch buffer easliy
+nmap <Tab> :bnext<enter>
+nmap <S-Tab> :bprev<enter>
 " }}}
 " Set the theme{{{
 set background=dark
