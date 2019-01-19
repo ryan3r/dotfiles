@@ -91,6 +91,7 @@ mv $nvimTmp/nvim-linux64 ~/dotfiles/tools/nvim
 
 rm -f ~/bin/nvim
 ln -s ~/dotfiles/tools/nvim/bin/nvim ~/bin/nvim
+
 # }}}
 # Install app plugins {{{
 progress "Installing app plugins"
@@ -121,4 +122,14 @@ if [ ! -z "$plugReady" ]; then
 else
 	echo "Vim not found. skipping."
 fi
+
+# Configure nvim to use the vim config
+rm -f ~/.local/share/nvim/site/.vim
+ln -s ~/.vim ~/.local/share/nvim/site/.vim
+
+cat >~/.config/nvim/init.vim <<"EOF"
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &packpath = &runtimepath
+source ~/.vimrc
+EOF
 # }}}
