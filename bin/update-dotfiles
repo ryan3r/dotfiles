@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
+mkdir -p ~/dotfiles/tools
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=4
+PROGRESS_TOTAL=5
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -73,15 +74,21 @@ for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgre
 done
 
 mkdir -p ~/bin
+# }}}
+# Install nvim {{{
+progress "Installing nvim"
+nvimTmp=$(mktemp -d)
+nvimTmpCleanup() {
+	rm -rf $nvimTmp
+}
+trap nvimTmpCleanup EXIT
 
-for file in $(ls -1 bin); do
-    if [ -f ~/bin/$file ]; then
-        echo "Moving existing bin/$file to bin/$file.bak"
-        mv ~/bin/$file ~/bin/$file.bak
-    fi
-
-    ln -s ~/dotfiles/bin/$file ~/bin/$file
-done
+pushd $nvimTmp
+wget https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+tar xf nvim-linux64.tar.gz
+popd
+mv $nvimTmp/nvim-linux64 ~/dotfiles/tools/nvim
+ln -s ~/bin/nvim ~/dotfiles/tools/nvim/bin/nvim
 # }}}
 # Install app plugins {{{
 progress "Installing app plugins"
@@ -96,19 +103,19 @@ command -v curl >/dev/null && hasCurl=1
 plugReady=1
 
 if [ ! -z "$hasWget" ]; then
-	mkdir -p ~/.vim/autoload
-		wget -qO ~/.vim/autoload/plug.vim \
-	    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	mkdir -p ~/.local/share/nvim/site/autoload
+		wget -qO ~/.local/share/nvim/site/autoload/plug.vim \
+	    	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 elif [ ! -z "$hasCurl" ]; then
-	curl -s -fLo ~/.vim/autoload/plug.vim --create-dirs \
+	curl -s -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
 			https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 else
 	echo "Could not find curl or wget. skipping vim."
 	unset plugReady
 fi
 
-if [ ! -z "$plugReady" ] && command -v vim >/dev/null; then
-	vim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+if [ ! -z "$plugReady" ]; then
+	nvim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
 else
 	echo "Vim not found. skipping."
 fi

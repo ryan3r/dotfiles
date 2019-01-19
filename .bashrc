@@ -161,6 +161,10 @@ if [ -d ~/bin ]; then
 	PATH="~/bin:$PATH"
 fi
 
+if [ -d ~/dotfiles/bin ]; then
+	PATH="~/dotfiles/bin:$PATH"
+fi
+
 # Prefer vim
 command -v vi >/dev/null && {
 	export EDITOR=vi
