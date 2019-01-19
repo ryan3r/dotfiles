@@ -47,7 +47,7 @@ if [ -z "$NO_PULL" ]; then
 	fi
 	
 	if [ -d .tmux/plugins/tpm ]; then
-		pushd .tmux/plugins/tmp
+		pushd .tmux/plugins/tpm
 		print_run "git pull"
 		popd
 	else
