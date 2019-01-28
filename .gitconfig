@@ -1,8 +1,0 @@
-[user]
-	name = Ryan Ray
-	email = ryan314r@gmail.com
-[alias]
-	undo = reset --soft HEAD~1
-	l5 = log -5 --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\"
-	l1 = log -1 --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\"
-	tree = log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\" --graph --all
