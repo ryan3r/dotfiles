@@ -128,6 +128,7 @@ fi
 rm -f ~/.local/share/nvim/site/.vim
 ln -s ~/.vim ~/.local/share/nvim/site/.vim
 
+mkdir -p ~/.config/nvim
 cat >~/.config/nvim/init.vim <<"EOF"
 set runtimepath^=~/.vim runtimepath+=~/.vim/after
 let &packpath = &runtimepath
