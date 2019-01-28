@@ -87,9 +87,10 @@ pushd $nvimTmp
 wget https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
 tar xf nvim-linux64.tar.gz
 popd
+rm -rf ~/dotfiles/tools/nvim
 mv $nvimTmp/nvim-linux64 ~/dotfiles/tools/nvim
 
-rm -f ~/bin/nvim
+rm -rf ~/bin/nvim
 ln -s ~/dotfiles/tools/nvim/bin/nvim ~/bin/nvim
 
 # }}}
