@@ -2,6 +2,10 @@
 set -e
 
 mkdir -p ~/dotfiles/tools
+PATH="~/bin:~/dotfiles/bin:$PATH"
+
+nvimVersion="0.3.4"
+
 # {{{
 # Print the progress and heading
 PROGRESS=0
@@ -77,22 +81,28 @@ mkdir -p ~/bin
 # }}}
 # Install nvim {{{
 progress "Installing nvim"
-nvimTmp=$(mktemp -d)
-nvimTmpCleanup() {
-	rm -rf $nvimTmp
-}
-trap nvimTmpCleanup EXIT
 
-pushd $nvimTmp
-wget https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
-tar xf nvim-linux64.tar.gz
-popd
-rm -rf ~/dotfiles/tools/nvim
-mv $nvimTmp/nvim-linux64 ~/dotfiles/tools/nvim
+if [ -f ~/dotfiles/tools/nvim/bin/nvim ]; then
+	curNvim="$(~/dotfiles/tools/nvim/bin/nvim --version | head -1 | grep -o "[0-9]*\.[0-9]*\.[0-9]*")"
+fi
+
+if [ "$curNvim" != "$nvimVersion" ]; then
+	nvimTmp=$(mktemp -d)
+	nvimTmpCleanup() {
+		rm -rf $nvimTmp
+	}
+	trap nvimTmpCleanup EXIT
+
+	pushd $nvimTmp
+	wget https://github.com/neovim/neovim/releases/download/v$nvimVersion/nvim-linux64.tar.gz
+	tar xf nvim-linux64.tar.gz
+	popd
+	rm -rf ~/dotfiles/tools/nvim
+	mv $nvimTmp/nvim-linux64 ~/dotfiles/tools/nvim
+fi
 
 rm -rf ~/bin/nvim
 ln -s ~/dotfiles/tools/nvim/bin/nvim ~/bin/nvim
-
 # }}}
 # Install app plugins {{{
 progress "Installing app plugins"
@@ -119,9 +129,7 @@ else
 fi
 
 if [ ! -z "$plugReady" ]; then
-	nvim +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
-else
-	echo "Vim not found. skipping."
+	nvim +PlugClean +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
 fi
 
 # Configure nvim to use the vim config
@@ -136,7 +144,7 @@ source ~/.vimrc
 EOF
 # }}}
 # Configure git {{{
-process "Configure git"
+progress "Configure git"
 git config --global alias.co checkout
 git config --global alias.undo "reset --soft HEAD~1"
 git config --global alias.lg "log --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\""
