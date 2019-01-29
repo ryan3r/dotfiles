@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e
 
-mkdir -p ~/dotfiles/tools
-PATH="~/bin:~/dotfiles/bin:$PATH"
-
 nvimVersion="0.3.4"
 
 # {{{
@@ -20,6 +17,9 @@ print_run() {
     echo -e "\033[0;36m>> $1\033[0;0m"
     eval "$1"
 }
+
+mkdir -p ~/dotfiles/tools
+PATH="~/bin:~/dotfiles/bin:$PATH"
 # }}}
 # Check for our dependencies {{{
 progress "Checking for dependencies"
