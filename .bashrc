@@ -49,7 +49,10 @@ if [ "$color_prompt" = yes ]; then
 		PS1=""
 
 		# Check if our dotfiles are behind the remote
+		pushd ~/dotfiles >/dev/null
 		local behindBy="$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
+		popd >/dev/null
+
 		if [ "$behindBy" != "0" ]; then
 			PS1="\[\033[1;31m\]${PS1}U\[\033[0m\] "
 		fi
