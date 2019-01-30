@@ -191,8 +191,8 @@ fi
 shopt -s autocd
 
 # Fetch changes in the dotfiles if we have an ssh key
-if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ]; then
-	pushd ~/dotfiles >/dev/null
+pushd ~/dotfiles >/dev/null
+if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ] || [ -z "$(git remote get-url origin | fgrep ssh)" ]; then
 	(git fetch -a >/dev/null 2>&1 &)
-	popd >/dev/null
 fi
+popd >/dev/null
