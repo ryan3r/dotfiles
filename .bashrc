@@ -48,6 +48,12 @@ if [ "$color_prompt" = yes ]; then
 	custom_prompt() {
 		PS1=""
 
+		# Check if our dotfiles are behind the remote
+		local behindBy="$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
+		if [ "$behindBy" != "0" ]; then
+			PS1="\[\033[1;31m\]${PS1}U\[\033[0m\] "
+		fi
+
 		# Show running jobs
 		if [ $(jobs | wc -l) -gt 0 ]; then
 			PS1="$PS1\[\033[1;33m\]$(jobs | wc -l)*\[\033[0m\] "
@@ -184,3 +190,8 @@ if $IS_WSL && [ ! -S /var/run/docker.sock ]; then
 fi
 
 shopt -s autocd
+
+# Fetch changes in the dotfiles
+pushd ~/dotfiles >/dev/null
+(git fetch -a >/dev/null 2>&1 &)
+popd >/dev/null
