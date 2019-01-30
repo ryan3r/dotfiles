@@ -50,7 +50,7 @@ if [ "$color_prompt" = yes ]; then
 
 		# Show running jobs
 		if [ $(jobs | wc -l) -gt 0 ]; then
-			PS1="$PS1\[\033[1;33m\]$(jobs -r | wc -l)/$(jobs | wc -l)\[\033[0m\] "
+			PS1="$PS1\[\033[1;33m\]$(jobs | wc -l)*\[\033[0m\] "
 		fi
 
 		# Show git info in the prompt
