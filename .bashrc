@@ -150,7 +150,7 @@ start_ssh_agent() {
 	source ~/.ssh-agent-env
 
 	if [ "$(ssh-add -l 2>/dev/null)" == "The agent has no identities." ]; then
-		echo 'The ssh agent does not have any keys yet. Run `ssh-add` to add one.'
+		ssh-add
 	fi
 }
 
@@ -190,7 +190,9 @@ fi
 
 shopt -s autocd
 
-# Fetch changes in the dotfiles
-pushd ~/dotfiles >/dev/null
-(git fetch -a >/dev/null 2>&1 &)
-popd >/dev/null
+# Fetch changes in the dotfiles if we have an ssh key
+if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ]; then
+	pushd ~/dotfiles >/dev/null
+	(git fetch -a >/dev/null 2>&1 &)
+	popd >/dev/null
+fi
