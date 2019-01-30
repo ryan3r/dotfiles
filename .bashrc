@@ -175,17 +175,13 @@ if [ -d ~/dotfiles/bin ]; then
 fi
 
 # Prefer vim
-command -v vi >/dev/null && {
-	export EDITOR=vi
-}
-
 command -v vim >/dev/null && {
 	export EDITOR=vim
 }
 
-command -v vi >/dev/null && (command -v vim >/dev/null || {
-	alias vim=vi
-})
+command -v nvim >/dev/null && {
+	export EDITOR=nvim
+}
 
 # Connect external docker engine to wsl docker client
 if $IS_WSL && [ ! -S /var/run/docker.sock ]; then
