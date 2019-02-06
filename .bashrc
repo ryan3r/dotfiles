@@ -195,4 +195,4 @@ shopt -s autocd
 #if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ] || [ -z "$(git remote get-url origin | fgrep ssh)" ]; then
 #	(git fetch -a >/dev/null 2>&1 &)
 #fi
-popd >/dev/null
+#popd >/dev/null
