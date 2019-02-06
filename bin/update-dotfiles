@@ -107,29 +107,8 @@ ln -s ~/dotfiles/tools/nvim/bin/nvim ~/bin/nvim
 # Install app plugins {{{
 progress "Installing app plugins"
 
-command -v tmux >/dev/null && {
-	export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
-	~/dotfiles/.tmux/plugins/tpm/scripts/install_plugins.sh
-} || echo "Tmux not found. skipping."
-
-command -v wget >/dev/null && hasWget=1
-command -v curl >/dev/null && hasCurl=1
-plugReady=1
-
-if [ ! -z "$hasWget" ]; then
-	mkdir -p ~/.local/share/nvim/site/autoload
-		wget -qO ~/.local/share/nvim/site/autoload/plug.vim \
-	    	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-elif [ ! -z "$hasCurl" ]; then
-	curl -s -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
-			https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-else
-	echo "Could not find curl or wget. skipping vim."
-	unset plugReady
-fi
-
-if [ ! -z "$plugReady" ]; then
-	nvim +PlugClean +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+if ! command -v tmux >/dev/null && command -v make >/dev/null && command -v cc >/dev/null && command -v cpp >/dev/null; then
+	BUILD_TMUX=1
 fi
 
 # Configure nvim to use the vim config
@@ -142,6 +121,84 @@ set runtimepath^=~/.vim runtimepath+=~/.vim/after
 let &packpath = &runtimepath
 source ~/.vimrc
 EOF
+
+command -v wget >/dev/null && hasWget=1
+command -v curl >/dev/null && hasCurl=1
+plugReady=1
+
+# Tmux build based on https://gist.github.com/ryin/3106801
+
+tmuxBuild=$(mktemp -d)
+delTmuxBuild() {
+	rm -rf $tmuxBuild
+}
+trap delTmuxBuild EXIT
+
+if [ ! -z "$hasWget" ]; then
+	mkdir -p ~/.local/share/nvim/site/autoload
+		wget -qO ~/.local/share/nvim/site/autoload/plug.vim \
+	    	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	
+	if [ ! -z "$BUILD_TMUX" ]; then
+		pushd $tmuxBuild
+		wget https://github.com/downloads/libevent/libevent/libevent-2.0.19-stable.tar.gz
+		wget ftp://ftp.gnu.org/gnu/ncurses/ncurses-6.1.tar.gz
+		wget https://github.com/tmux/tmux/releases/download/2.8/tmux-2.8.tar.gz
+		popd
+	fi
+elif [ ! -z "$hasCurl" ]; then
+	curl -s -fLo ~/.local/share/nvim/site/autoload/plug.vim --create-dirs \
+			https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+	if [ ! -z "$BUILD_TMUX" ]; then
+		pushd $tmuxBuild
+		curl https://github.com/downloads/libevent/libevent/libevent-2.0.19-stable.tar.gz >libevent-2.0.19-stable.tar.gz
+		curl ftp://ftp.gnu.org/gnu/ncurses/ncurses-6.1.tar.gz >ncurses-6.1.tar.gz
+		curl https://github.com/tmux/tmux/releases/download/2.8/tmux-2.8.tar.gz >tmux-2.8.tar.gz
+		popd
+	fi
+else
+	echo "Could not find curl or wget. skipping vim."
+	unset plugReady
+fi
+
+if [ ! -z "$BUILD_TMUX" ]; then
+	mkdir $tmuxBuild/libs
+	pushd $tmuxBuild
+	# Build libevent
+	tar xvzf libevent-2.0.19-stable.tar.gz
+	pushd libevent-2.0.19-stable
+	./configure --prefix=$tmuxBuild/libs --disable-shared
+	make
+	make install
+	popd
+
+	# Build ncurses
+	tar xvzf ncurses-6.1.tar.gz
+	pushd ncurses-6.1
+	./configure --prefix=$tmuxBuild/libs
+	make
+	make install
+	popd
+
+	# Build tmux
+	tar xvzf tmux-2.8.tar.gz
+	pushd tmux-2.8
+	./configure CFLAGS="-I$tmuxBuild/libs/include -I$tmuxBuild/libs/include/ncurses" LDFLAGS="-L$tmuxBuild/libs/lib -L$tmuxBuild/libs/include/ncurses -L$tmuxBuild/libs/include"
+	CPPFLAGS="-I$tmuxBuild/libs/include -I$tmuxBuild/libs/include/ncurses" LDFLAGS="-static -L$tmuxBuild/libs/include -L$tmuxBuild/libs/include/ncurses -L$tmuxBuild/libs/lib" make
+	cp tmux $HOME/bin
+	popd
+	popd
+fi
+
+command -v tmux >/dev/null && {
+	export TMUX_PLUGIN_MANAGER_PATH="$HOME/.tmux/plugins/"
+	~/dotfiles/.tmux/plugins/tpm/scripts/install_plugins.sh
+} || echo "Tmux not found. skipping."
+
+if [ ! -z "$plugReady" ]; then
+	nvim +PlugClean +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+fi
 # }}}
 # Configure git {{{
 progress "Configure git"
