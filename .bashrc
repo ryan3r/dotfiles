@@ -184,15 +184,15 @@ command -v nvim >/dev/null && {
 }
 
 # Connect external docker engine to wsl docker client
-if $IS_WSL && [ ! -S /var/run/docker.sock ]; then
-	(sudo bash -c 'socat UNIX-LISTEN:/var/run/docker.sock,fork,group=docker,umask=007 EXEC:"npiperelay.exe -ep -s //./pipe/docker_engine",nofork >/dev/null 2>&1' &)
-fi
+#if $IS_WSL && [ ! -S /var/run/docker.sock ]; then
+#	(sudo bash -c 'socat UNIX-LISTEN:/var/run/docker.sock,fork,group=docker,umask=007 EXEC:"npiperelay.exe -ep -s //./pipe/docker_engine",nofork >/dev/null 2>&1' &)
+#fi
 
 shopt -s autocd
 
 # Fetch changes in the dotfiles if we have an ssh key
-pushd ~/dotfiles >/dev/null
-if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ] || [ -z "$(git remote get-url origin | fgrep ssh)" ]; then
-	(git fetch -a >/dev/null 2>&1 &)
-fi
+#pushd ~/dotfiles >/dev/null
+#if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ] || [ -z "$(git remote get-url origin | fgrep ssh)" ]; then
+#	(git fetch -a >/dev/null 2>&1 &)
+#fi
 popd >/dev/null
