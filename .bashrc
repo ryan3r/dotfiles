@@ -180,7 +180,7 @@ command -v vim >/dev/null && {
 }
 
 command -v nvim >/dev/null && {
-	export EDITOR=nvim
+	export EDITOR=~/bin/nvim
 }
 
 # Connect external docker engine to wsl docker client
