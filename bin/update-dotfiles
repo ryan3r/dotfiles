@@ -128,11 +128,13 @@ plugReady=1
 
 # Tmux build based on https://gist.github.com/ryin/3106801
 
-tmuxBuild=$(mktemp -d)
-delTmuxBuild() {
-	rm -rf $tmuxBuild
+cleanupTmux() {
+	rm -rf tools/*.gz
+	rm -rf tools/libevent-2.0.19-stable
+	rm -rf tools/ncurses-6.1
+	rm -rf tools/tmux-2.8/*.{c,o,h} tools/tmux-2.8/{etc,compat}
 }
-trap delTmuxBuild EXIT
+trap cleanupTmux EXIT
 
 if [ ! -z "$hasWget" ]; then
 	mkdir -p ~/.local/share/nvim/site/autoload
@@ -140,7 +142,7 @@ if [ ! -z "$hasWget" ]; then
 	    	https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	
 	if [ ! -z "$BUILD_TMUX" ]; then
-		pushd $tmuxBuild
+		pushd ~/dotfiles/tools
 		wget https://github.com/downloads/libevent/libevent/libevent-2.0.19-stable.tar.gz
 		wget ftp://ftp.gnu.org/gnu/ncurses/ncurses-6.1.tar.gz
 		wget https://github.com/tmux/tmux/releases/download/2.8/tmux-2.8.tar.gz
@@ -151,7 +153,7 @@ elif [ ! -z "$hasCurl" ]; then
 			https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 	if [ ! -z "$BUILD_TMUX" ]; then
-		pushd $tmuxBuild
+		pushd ~/dotfiles/tools
 		curl https://github.com/downloads/libevent/libevent/libevent-2.0.19-stable.tar.gz >libevent-2.0.19-stable.tar.gz
 		curl ftp://ftp.gnu.org/gnu/ncurses/ncurses-6.1.tar.gz >ncurses-6.1.tar.gz
 		curl https://github.com/tmux/tmux/releases/download/2.8/tmux-2.8.tar.gz >tmux-2.8.tar.gz
@@ -163,12 +165,12 @@ else
 fi
 
 if [ ! -z "$BUILD_TMUX" ]; then
-	mkdir $tmuxBuild/libs
-	pushd $tmuxBuild
+	mkdir ~/dotfiles/tools/libs
+	pushd ~/dotfiles/tools
 	# Build libevent
 	tar xvzf libevent-2.0.19-stable.tar.gz
 	pushd libevent-2.0.19-stable
-	./configure --prefix=$tmuxBuild/libs --disable-shared
+	./configure --prefix=$HOME/dotfiles/tools/libs --disable-shared
 	make
 	make install
 	popd
@@ -176,7 +178,7 @@ if [ ! -z "$BUILD_TMUX" ]; then
 	# Build ncurses
 	tar xvzf ncurses-6.1.tar.gz
 	pushd ncurses-6.1
-	./configure --prefix=$tmuxBuild/libs
+	./configure --prefix=$HOME/dotfiles/tools/libs
 	make
 	make install
 	popd
@@ -184,9 +186,9 @@ if [ ! -z "$BUILD_TMUX" ]; then
 	# Build tmux
 	tar xvzf tmux-2.8.tar.gz
 	pushd tmux-2.8
-	./configure CFLAGS="-I$tmuxBuild/libs/include -I$tmuxBuild/libs/include/ncurses" LDFLAGS="-L$tmuxBuild/libs/lib -L$tmuxBuild/libs/include/ncurses -L$tmuxBuild/libs/include"
-	CPPFLAGS="-I$tmuxBuild/libs/include -I$tmuxBuild/libs/include/ncurses" LDFLAGS="-static -L$tmuxBuild/libs/include -L$tmuxBuild/libs/include/ncurses -L$tmuxBuild/libs/lib" make
-	cp tmux $HOME/bin
+	./configure CFLAGS="-I$HOME/dotfiles/tools/libs/include -I$HOME/dotfiles/tools/libs/include/ncurses" LDFLAGS="-L$HOME/dotfiles/tools/libs/lib -L$HOME/dotfiles/tools/libs/include/ncurses -L$HOME/dotfiles/tools/libs/include"
+	CPPFLAGS="-I$HOME/dotfiles/tools/libs/include -I$HOME/dotfiles/tools/libs/include/ncurses" LDFLAGS="-static -L$HOME/dotfiles/tools/libs/include -L$HOME/dotfiles/tools/libs/include/ncurses -L$HOME/dotfiles/tools/libs/lib" make
+	ln -s ~/dotfiles/tools/tmux-2.8/tmux ~/bin/tmux
 	popd
 	popd
 fi
