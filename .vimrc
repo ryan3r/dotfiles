@@ -18,6 +18,8 @@ Plug 'tpope/vim-rhubarb'
 Plug 'tmux-plugins/vim-tmux'
 Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'roxma/vim-tmux-clipboard'
+Plug 'godlygeek/tabular'
+Plug 'plasticboy/vim-markdown'
 
 if v:version >= 703
 	let g:signify_realtime=1
@@ -39,9 +41,10 @@ set shiftwidth=4
 set complete+=kspell
 set backspace=2
 let NERDTreeShowHidden=1
-set foldmethod=marker
+set foldmethod=syntax
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp
+set conceallevel=2
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
@@ -72,8 +75,8 @@ if !empty(globpath(&rtp, 'colors/palenight.vim'))
 endif
 "}}}
 " Autocommands{{{
-"autocmd BufWinLeave *.* mkview
-"autocmd BufWinEnter *.* silent loadview 
+autocmd FileType vim setlocal foldmethod=marker
+autocmd FileType sh setlocal foldmethod=marker
 "}}}
 " Configure the status bar {{{
 let g:lightline = {
