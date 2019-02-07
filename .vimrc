@@ -20,6 +20,8 @@ Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'roxma/vim-tmux-clipboard'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
+Plug 'w0rp/ale'
+Plug 'maximbaz/lightline-ale'
 
 if v:version >= 703
 	let g:signify_realtime=1
@@ -43,7 +45,7 @@ set backspace=2
 let NERDTreeShowHidden=1
 set foldmethod=syntax
 set laststatus=2
-set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp
+set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
@@ -51,20 +53,42 @@ let g:ctrlp_show_hidden = 1
 "}}}
 " Key bindings{{{
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
-nmap <leader>t :NERDTreeToggle<enter>
+nmap <leader>n :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
 nmap <leader>p :CtrlPBuffer<enter>
-nmap <leader>r :source .vimrc<enter> :echo "Config reloaded"<enter>
+nmap <leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
+nmap <leader>c :noh<enter>
 
 " Switch vim windows
-nmap <C-j> <C-W>j
-nmap <C-k> <C-W>k
-nmap <C-l> <C-W>l
-nmap <C-h> <C-W>h
+map <C-j> <Esc><C-W>j
+map <C-k> <Esc><C-W>k
+map <C-l> <Esc><C-W>l
+map <C-h> <Esc><C-W>h
 
 " Switch buffer easliy
 nmap <Tab> :bnext<enter>
 nmap <S-Tab> :bprev<enter>
+
+" Flip through the location and quickfix lists
+nmap ]l :lnext<enter>
+nmap [l :lprev<enter>
+nmap ]c :cnext<enter>
+nmap [c :cprev<enter>
+
+
+" Terminal mode
+if has("nvim")
+	if has("windows")
+		nmap \t :vsplit term://powershell<enter>
+	else
+		nmap \t :vsplit term://bash<enter>
+	endif
+endif
+
+tnoremap <Esc> <C-\><C-n>
+" }}}
+" Commands {{{
+command! Todo :vimgrep /TODO/ **/*.*<enter>
 " }}}
 " Set the theme{{{
 set background=dark
@@ -77,6 +101,9 @@ endif
 " Autocommands{{{
 autocmd FileType vim setlocal foldmethod=marker
 autocmd FileType sh setlocal foldmethod=marker
+if has("nvim")
+	autocmd TermOpen * setlocal relativenumber! number!
+endif
 "}}}
 " Configure the status bar {{{
 let g:lightline = {
@@ -85,12 +112,12 @@ let g:lightline = {
 	\ 'left': [
 	\ 	[ 'mode', 'paste' ],
 	\	[ 'readonly', 'filename', 'modified' ],
-	\	[ 'filetype' ]
+	\	[ 'gitbranch' ]
 	\ ],
 	\ 'right': [
-	\	[ 'lineinfo' ],
-	\ 	[ 'percent' ], 
-	\ 	[ 'fileformat' ]
+	\ 	[ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_ok' ],
+	\	[ 'lineinfo', 'percent' ], 
+	\ 	[ 'fileformat', 'filetype' ]
 	\ ],
 	\ },
 	\ 'inactive': {
@@ -101,8 +128,24 @@ let g:lightline = {
 	\	'mode': 'LightLineMode',
 	\	'filetype': 'LightLineFileType',
 	\	'fileformat': 'LightLineFileFormat',
+	\	'gitbranch': 'fugitive#head',
 	\ },
     \ }
+
+" Ale statusline
+let g:lightline.component_expand = {
+      \  'linter_checking': 'lightline#ale#checking',
+      \  'linter_warnings': 'lightline#ale#warnings',
+      \  'linter_errors': 'lightline#ale#errors',
+      \  'linter_ok': 'lightline#ale#ok',
+      \ }
+
+let g:lightline.component_type = {
+      \     'linter_checking': 'left',
+      \     'linter_warnings': 'warning',
+      \     'linter_errors': 'error',
+      \     'linter_ok': 'left',
+      \ }
 
 function! LightLineMode()
 	return expand('%:p') =~# '^fugitive' ? 'Fugitive' :
