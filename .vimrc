@@ -101,6 +101,8 @@ endif
 " Autocommands{{{
 autocmd FileType vim setlocal foldmethod=marker
 autocmd FileType sh setlocal foldmethod=marker
+autocmd FileType tmux setlocal foldmethod=marker
+
 if has("nvim")
 	autocmd TermOpen * setlocal relativenumber! number!
 endif
