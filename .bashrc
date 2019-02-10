@@ -8,6 +8,15 @@ case $- in
       *) return;;
 esac
 
+# Start tmux for ssh connections
+shopt -q login_shell && [ ! -z "$SSH_CONNECTION" ] && [ -z "$TMUX" ] && {
+	if tmux ls >/dev/null 2>&1; then
+		exec tmux attach
+	else
+		exec tmux new
+	fi
+}
+
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
