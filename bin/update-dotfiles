@@ -57,7 +57,7 @@ if [ -z "$NO_PULL" ]; then
 		print_run "git pull"
 		popd
 	else
-		print_run "git clone https://github.com/tmux-plugins/tpm .tmux/plugins/tmp"
+		print_run "git clone https://github.com/tmux-plugins/tpm .tmux/plugins/tpm"
 	fi
 else
 	echo "Not pulling because the env var NO_PULL is set"
@@ -113,6 +113,7 @@ fi
 
 # Configure nvim to use the vim config
 rm -f ~/.local/share/nvim/site/.vim
+mkdir -p ~/.local/share/nvim/site/
 ln -s ~/.vim ~/.local/share/nvim/site/.vim
 
 mkdir -p ~/.config/nvim

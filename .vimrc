@@ -22,6 +22,8 @@ Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'w0rp/ale'
 Plug 'maximbaz/lightline-ale'
+Plug 'pangloss/vim-javascript'
+Plug 'tpope/vim-dispatch'
 
 if v:version >= 703
 	let g:signify_realtime=1
