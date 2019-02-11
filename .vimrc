@@ -105,6 +105,9 @@ autocmd FileType vim setlocal foldmethod=marker
 autocmd FileType sh setlocal foldmethod=marker
 autocmd FileType tmux setlocal foldmethod=marker
 
+" Based on https://stackoverflow.com/questions/26962999/wrong-indentation-when-editing-yaml-in-vim
+autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
 if has("nvim")
 	autocmd TermOpen * setlocal relativenumber! number!
 endif
