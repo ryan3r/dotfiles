@@ -200,7 +200,7 @@ command -v tmux >/dev/null && {
 } || echo "Tmux not found. skipping."
 
 if [ ! -z "$plugReady" ]; then
-	nvim +PlugClean +PlugInstall +qall 2>/dev/tty >/dev/tty </dev/tty
+	nvim +PlugClean +PlugInstall +qall
 fi
 # }}}
 # Configure git {{{
