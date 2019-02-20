@@ -49,6 +49,7 @@ set foldmethod=syntax
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
+set spell!
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
@@ -67,7 +68,7 @@ map <C-k> <Esc><C-W>k
 map <C-l> <Esc><C-W>l
 map <C-h> <Esc><C-W>h
 
-" Switch buffer easliy
+" Switch buffer easily
 nmap <Tab> :bnext<enter>
 nmap <S-Tab> :bprev<enter>
 
