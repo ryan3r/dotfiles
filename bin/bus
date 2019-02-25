@@ -1,0 +1,122 @@
+#!/bin/bash
+DATA_DIR="$HOME/.cache/r3bus"
+ROUTE_LIST="$DATA_DIR/routeList.txt"
+MSGS="$DATA_DIR/daemon"
+
+fetch() {
+	local url="http://webservices.nextbus.com/service/publicJSONFeed?a=cyride&$1"
+	local res="$(curl -s -H "Accept-Encoding: gzip, deflate" $url)"
+	# Handle errors from cyride
+	echo "$res" | jq -r '.Error.content // .Error | .[] | .content' >&2 2>/dev/null && exit 1
+	echo "$res"
+}
+
+routes() {
+	echo -e "ID\tRoute name"
+	if [ "$1" == "--stop" ]; then
+		cat $ROUTE_LIST | awk -F: "/^[0-9]*:.*:$2:/ {print \$1 \"\\t\", \$2}" | uniq
+	else
+		cat $ROUTE_LIST | awk -F: '{print $1 "\t", $2}' | uniq
+	fi
+}
+
+fetchRouteList() {
+	fetch command=routeConfig | jq -r '.route | .[] | .tag + ":" + .title + ":" + (.stop | .[] | .tag + ":" + .title)'
+}
+
+stops() {
+	echo -e "ID\t\tStop name"
+	if [ "$1" == "--route" ]; then
+		cat $ROUTE_LIST | awk -F: "/^$2:/ {print \$3 \"\\t\", \$4}" | sort
+	else
+		cat $ROUTE_LIST | awk -F: '{print $3 "\t", $4}' | sort | uniq
+	fi
+}
+
+predict() {
+	local array="| .[] "
+	local query=
+	if [ -f "$HOME/.r3bus/$1" ]; then
+		query="command=predictionsForMultiStops&$(cat "$HOME/.r3bus/$1" | awk '{print "&stops=" $1}' | xargs | tr ' ' '&')"
+	elif [ -z "$2" ]; then
+		query="command=predictionsForMultiStops$(bus routes --stop $1 | awk "/^[0-9]/ {print \"&stops=\" \$1 \"|$1\"}" | paste -sd "")"
+	else
+		query="command=predictionsForMultiStops&stops=$1|$2"
+		array=
+	fi
+
+	fetch "$query" \
+		| jq -cr ".predictions $array| .routeTitle + \":\" + (.direction.prediction | try .[0].epochTime // \"None\")" \
+		| sed '/None/ d'
+}
+
+spawn() {
+	echo $BASHPID >"$MSGS.pid"
+
+	while true; do
+		predict $* >$MSGS
+		sleep 60
+	done
+}
+
+help() {
+	cat <<"EOF"
+A script for getting bus info
+Usage: bus <command> [options]
+
+Subcommands:
+routes [--stop <stop>]				List the routes
+stops [--route <route>]				List the stops
+predict [-d] [route] <stop>			Get predictions for when a bus arrives
+
+Options:
+EOF
+}
+
+printPreds() {
+	[ -f "$MSGS" ] || exit 1
+
+	first=1
+	while read -r line; do
+		name="$(echo $line | awk -F: '{print $1}' | \
+			awk '{if(substr($2,0,1) == "W" || substr($2,0,1)=="E") print $1 substr($2,0,1); else print $1 substr($3,0,1)}')"
+		countdown="$((($(echo $line | awk -F: '{print $2}') / 1000 - $(date +%s)) / 60))"
+		time="$(date -d @$(($(echo $line | awk -F: '{print $2}') / 100)) +%H:%M)"
+
+		if [ -z "$first" ]; then
+			echo -n " | "
+		else
+			first=""	
+		fi
+
+		echo -n "#[fg=colour170]$name: $countdown ($time)#[fg=colour240]"
+	done < "$MSGS"
+	echo
+}
+
+killDaemon() {
+	[ -f "$MSGS.pid" ] && kill $(cat "$MSGS.pid")
+	rm -f "$MSGS.pid" "$MSGS"
+}
+
+mkdir -p $DATA_DIR
+[ -f "$ROUTE_LIST" ] || fetchRouteList >$ROUTE_LIST
+
+subCommand="$1"
+shift
+case "$subCommand" in 
+	routes) routes $* ;;
+	stops) stops $* ;;
+	_spawn_) spawn $* ;; 
+	predict)
+		if [ "$1" == "-d" ]; then
+			[ -f "$MSGS.pid" ] && kill $(cat "$MSGS.pid")
+			shift
+			(nohup ~/bin/bus _spawn_ $* >/dev/null 2>&1 &)
+		else
+			printPreds
+		fi
+		;;
+	stop) killDaemon ;;
+	*) help ;;
+esac
