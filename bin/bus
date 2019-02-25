@@ -112,7 +112,7 @@ case "$subCommand" in
 		if [ "$1" == "-d" ]; then
 			[ -f "$MSGS.pid" ] && kill $(cat "$MSGS.pid")
 			shift
-			(nohup ~/bin/bus _spawn_ $* >/dev/null 2>&1 &)
+			(nohup ~/dotfiles/bin/bus _spawn_ $* >/dev/null 2>&1 &)
 		else
 			printPreds
 		fi
