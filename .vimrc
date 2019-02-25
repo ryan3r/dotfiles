@@ -1,3 +1,4 @@
+" vim: set foldlevel=0:
 set nocompatible
 
 " Plug config{{{
@@ -46,11 +47,13 @@ set complete+=kspell
 set backspace=2
 let NERDTreeShowHidden=1
 set foldmethod=syntax
+set foldlevel=3
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
 set spell!
 set modeline
+set complete+=.,w,b,t,i,u,kspell
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
