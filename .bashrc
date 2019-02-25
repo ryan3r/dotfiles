@@ -198,7 +198,6 @@ if [ ! -z "$IS_WSL" ] && [ ! -S /var/run/docker.sock ]; then
 fi
 
 shopt -s autocd
-set -o vi
 
 # Fetch changes in the dotfiles if we have an ssh key
 #pushd ~/dotfiles >/dev/null
