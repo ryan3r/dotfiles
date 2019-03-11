@@ -205,3 +205,6 @@ shopt -s autocd
 #	(git fetch -a >/dev/null 2>&1 &)
 #fi
 #popd >/dev/null
+
+# added by travis gem
+[ -f /home/ryan/.travis/travis.sh ] && source /home/ryan/.travis/travis.sh
