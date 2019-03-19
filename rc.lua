@@ -264,33 +264,18 @@ globalkeys = awful.util.table.join(
               {description = "show main menu", group = "awesome"}),
 
 	-- Volume control
-    awful.key({ modkey, }, "F8", function () awful.spawn("pactl -- set-sink-volume 0 0")    end,
-              {description = "Mute", group = "launcher"}),
-    awful.key({ modkey, }, "F9", function () awful.spawn("pactl -- set-sink-volume 0 -10%")    end,
-              {description = "Volume down 10%", group = "launcher"}),
-    awful.key({ modkey, }, "F10", function () awful.spawn("pactl -- set-sink-volume 0 +10%")    end,
-              {description = "Volume up 10%", group = "launcher"}),
-
-    awful.key({ modkey, "Shift" }, "F9", function () awful.spawn("pactl -- set-sink-volume 0 -5%")    end,
-              {description = "Volume down 10%", group = "launcher"}),
-    awful.key({ modkey, "Shift" }, "F10", function () awful.spawn("pactl -- set-sink-volume 0 +5%")    end,
-              {description = "Volume up 10%", group = "launcher"}),
+    awful.key({ modkey, }, "F8", function () awful.spawn("pactl set-sink-mute 0 toggle")    end,
+              {description = "Mute", group = "system"}),
+    awful.key({ modkey, }, "F9", function () awful.spawn("pactl set-sink-volume 0 -10%")    end,
+              {description = "Volume down 10%", group = "system"}),
+    awful.key({ modkey, }, "F10", function () awful.spawn("pactl set-sink-volume 0 +10%")    end,
+              {description = "Volume up 10%", group = "system"}),
 
 	-- Brightness control
-    awful.key({ modkey }, "F6", function () awful.spawn("/home/ryan/bin/brightness -100")    end,
-              {description = "Brightness down by 10% (i think)", group = "launcher"}),
-    awful.key({ modkey }, "F7", function () awful.spawn("/home/ryan/bin/brightness +100")    end,
-              {description = "Brightness up by 10% (I think)", group = "launcher"}),
-
-    awful.key({ modkey, "Shift" }, "F6", function () awful.spawn("/home/ryan/bin/brightness -50")    end,
-              {description = "Brightness down by 5% (i think)", group = "launcher"}),
-    awful.key({ modkey, "Shift" }, "F7", function () awful.spawn("/home/ryan/bin/brightness +50")    end,
-              {description = "Brightness up by 1% (I think)", group = "launcher"}),
-
-    awful.key({ modkey, "Control" }, "F6", function () awful.spawn("/home/ryan/bin/brightness -10")    end,
-              {description = "Brightness down by 5% (i think)", group = "launcher"}),
-    awful.key({ modkey, "Control" }, "F7", function () awful.spawn("/home/ryan/bin/brightness +10")    end,
-              {description = "Brightness up by 1% (I think)", group = "launcher"}),
+    awful.key({ modkey }, "F6", function () awful.spawn("light -U 10")    end,
+              {description = "Brightness down by 10%", group = "system"}),
+    awful.key({ modkey }, "F7", function () awful.spawn("light -A 10")    end,
+              {description = "Brightness up by 10%", group = "system"}),
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
@@ -566,14 +551,6 @@ client.connect_signal("request::titlebars", function(c)
         },
         layout = wibox.layout.align.horizontal
     }
-end)
-
--- Enable sloppy focus, so that focus follows mouse.
-client.connect_signal("mouse::enter", function(c)
-    if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
-        and awful.client.focus.filter(c) then
-        client.focus = c
-    end
 end)
 
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
