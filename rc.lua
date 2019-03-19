@@ -22,10 +22,9 @@ local net_widget = require("net_widgets")
 -- Themes define colours, icons, font and wallpapers.
 beautiful.init(awful.util.get_themes_dir() .. "default/theme.lua")
 
--- This is used later as the default terminal and editor to run.
+-- Default apps
 terminal = "x-terminal-emulator"
-editor = os.getenv("EDITOR") or "editor"
-editor_cmd = terminal .. " -e " .. editor
+browser = "firefox"
 
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
@@ -170,7 +169,7 @@ awful.screen.connect_for_each_screen(function(s)
 			wibox.widget.textbox(" | "),
 			cpu_widget,
 			wibox.widget.textbox(" "),
-            -- s.mylayoutbox,
+            s.mylayoutbox,
         },
     }
 end)
@@ -294,7 +293,13 @@ globalkeys = awful.util.table.join(
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+              {description = "show the menubar", group = "launcher"}),
+	
+    -- Launch apps
+    awful.key({ modkey }, "b", function() awful.spawn(browser) end,
+              {description = "launch the browser", group = "launcher"}),
+    awful.key({ modkey }, "v", function() awful.spawn(terminal .. " -e /home/ryan/bin/nvim") end,
+              {description = "launch vim", group = "launcher"})
 )
 
 clientkeys = awful.util.table.join(
