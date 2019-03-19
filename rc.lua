@@ -159,7 +159,7 @@ awful.screen.connect_for_each_screen(function(s)
 			wibox.widget.textbox(" | "),
 			brightness_widget,
 			wibox.widget.textbox(" | "),
-			awful.widget.watch("/home/ryan/bin/status", 15),
+			awful.widget.watch(os.getenv("HOME") .. "/dotfiles/bin/status", 15),
 			wibox.widget.textbox(" | "),
 			battery_widget,
 			wibox.widget.textbox(" | "),
