@@ -424,6 +424,11 @@ awful.rules.rules = {
     { rule_any = {type = { "dialog" }
       }, properties = { titlebars_enabled = true }
     },
+
+	{ rule_any = {
+		name = { "mpv" },
+	  }, properties = { floating = true, fullscreen = true }
+	}
 }
 -- }}}
 
