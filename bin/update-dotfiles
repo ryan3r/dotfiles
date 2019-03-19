@@ -6,7 +6,7 @@ nvimVersion="0.3.4"
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=6
+PROGRESS_TOTAL=7
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -210,4 +210,12 @@ git config --global alias.undo "reset --soft HEAD~1"
 git config --global alias.lg "log --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\""
 git config --global alias.l1 "log -1 --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\""
 git config --global alias.tree "log --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\" --graph --all"
+# }}}
+# Configure awesome {{{
+progress "Configure awesome"
+mkdir -p ~/.config/awesome
+rm ~/rc.lua
+ln -s ~/dotfiles/rc.lua ~/.config/awesome/rc.lua
+git clone https://github.com/pltanton/net_widgets ~/.config/awesome/net_widgets
+git clone https://github.com/streetturtle/awesome-wm-widgets ~/.config/awesome/awesome-wm-widgets
 # }}}
