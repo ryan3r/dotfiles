@@ -6,7 +6,7 @@ updates="$(($(apt list --upgradable 2>/dev/null | wc -l) - 1))"
 if [ "$containers" == "0" ] || [ -z "$containers" ]; then
 	containers=
 else
-	containers="$containers ctrs | "
+	containers="$containers containers | "
 fi 
 
 if [ "$updates" == "0" ]; then
