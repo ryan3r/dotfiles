@@ -1,7 +1,27 @@
 #!/bin/bash
+mkdir -p ~/.cache/r3r-netspeed
+
 rootfs="$(df -H / | tail -1 | awk '{print $3 "/" $2}')"
 command -v docker >/dev/null && containers="$(docker ps -q 2>/dev/null | wc -l)"
 updates="$(($(apt list --upgradable 2>/dev/null | wc -l) - 1))"
+
+# Measure the download speed
+downloaded="$(cat /proc/net/dev | awk '/enp2s0/ {print $2}')"
+uploaded="$(cat /proc/net/dev | awk '/enp2s0/ {print $10}')"
+ctime="$(date +%s)"
+lastTime="$(cat ~/.cache/r3r-netspeed/time)"
+lastDownload="$(cat ~/.cache/r3r-netspeed/downloaded)"
+lastUpload="$(cat ~/.cache/r3r-netspeed/uploaded)"
+
+echo $downloaded > ~/.cache/r3r-netspeed/downloaded
+echo $uploaded > ~/.cache/r3r-netspeed/uploaded
+echo $ctime > ~/.cache/r3r-netspeed/time
+
+downdiff="$((($downloaded - $lastDownload) * 8 / ($ctime - $lastTime)))"
+updiff="$((($uploaded - $lastUpload) * 8 / ($ctime - $lastTime)))"
+downlink="$(echo $downdiff | numfmt --to=iec-i --suffix=B/s)"
+uplink="$(echo $updiff | numfmt --to=iec-i --suffix=B/s)"
+link="$uplink up $downlink down | "
 
 if [ "$containers" == "0" ] || [ -z "$containers" ]; then
 	containers=
@@ -15,4 +35,4 @@ else
 	updates="$updates up | "
 fi 
 
-echo "$containers$updates$rootfs"
+echo "$containers$updates$link$rootfs"
