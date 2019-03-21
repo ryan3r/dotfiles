@@ -24,7 +24,7 @@ local net_widget = require("net_widgets")
 beautiful.init(awful.util.get_themes_dir() .. "default/theme.lua")
 
 -- Default apps
-terminal = "x-terminal-emulator"
+terminal = "gnome-terminal" -- "x-terminal-emulator"
 browser = "firefox"
 
 -- Default modkey.

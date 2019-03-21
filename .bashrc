@@ -54,32 +54,64 @@ else
 fi
 
 if [ "$color_prompt" = yes ]; then
+	# custom_prompt() {
+	# 	PS1=""
+
+	# 	# Check if our dotfiles are behind the remote
+	# 	pushd ~/dotfiles >/dev/null
+	# 	local behindBy="$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
+	# 	popd >/dev/null
+
+	# 	if [ "$behindBy" != "0" ]; then
+	# 		PS1="\[\033[1;31m\]${PS1}U\[\033[0m\] "
+	# 	fi
+
+	# 	# Show running jobs
+	# 	if [ $(jobs | wc -l) -gt 0 ]; then
+	# 		PS1="$PS1\[\033[1;33m\]$(jobs | wc -l)*\[\033[0m\] "
+	# 	fi
+
+	# 	# Show git info in the prompt
+	# 	if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
+	# 		local status="$(git status --porcelain)"
+	# 		if [ -z "$status" ]; then
+	# 			PS1="$PS1\[\033[1;32m\]"
+	# 		else
+	# 			PS1="$PS1\[\033[1;33m\]"
+	# 		fi
+	# 		PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null))\[\033[0m\] "
+	# 	fi
+
+	# 	# Show only 2 dirs
+	# 	local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")"
+	# 	if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
+	# 		cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
+	# 	fi
+
+	# 	PS1="$PS1${debian_chroot:+($debian_chroot)}\[\033[00;32m\]\h\[\033[00m\]:\[\033[01;34m\]$cwd\[\033[00m\]$ "
+	# }
+
+	# PROMPT_COMMAND=custom_prompt
+
+
 	custom_prompt() {
 		PS1=""
-
-		# Check if our dotfiles are behind the remote
-		pushd ~/dotfiles >/dev/null
-		local behindBy="$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
-		popd >/dev/null
-
-		if [ "$behindBy" != "0" ]; then
-			PS1="\[\033[1;31m\]${PS1}U\[\033[0m\] "
-		fi
-
-		# Show running jobs
-		if [ $(jobs | wc -l) -gt 0 ]; then
-			PS1="$PS1\[\033[1;33m\]$(jobs | wc -l)*\[\033[0m\] "
-		fi
+		local sep="$(echo -e "\ue0b0")"
 
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
 			local status="$(git status --porcelain)"
+			local foreground=
 			if [ -z "$status" ]; then
-				PS1="$PS1\[\033[1;32m\]"
+				PS1="$PS1\[\033[0;42m\]"
+				foreground="\[\033[0;32m\]"
 			else
-				PS1="$PS1\[\033[1;33m\]"
+				PS1="$PS1\[\033[103m\]\[\033[30m\]"
+				foreground="\[\033[0;93m\]"
 			fi
-			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null))\[\033[0m\] "
+			PS1="$PS1 $(echo -e "\ue0a0")$(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null) $foreground\[\033[48;5;237m\]$sep"
+		else
+			PS1="$PS1\[\033[0;46m\] \h \[\033[36m\]\[\033[48;5;237m\]$sep"
 		fi
 
 		# Show only 2 dirs
@@ -87,8 +119,8 @@ if [ "$color_prompt" = yes ]; then
 		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
 			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
 		fi
-
-		PS1="$PS1${debian_chroot:+($debian_chroot)}\[\033[00;32m\]\h\[\033[00m\]:\[\033[01;34m\]$cwd\[\033[00m\]$ "
+	#
+		PS1="$PS1\[\033[48;5;237m\]\[\033[39m\] $cwd \[\033[00m\]\[\033[38;5;237m\]$sep\[\033[00m\] "
 	}
 
 	PROMPT_COMMAND=custom_prompt
