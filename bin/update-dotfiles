@@ -218,6 +218,15 @@ rm ~/rc.lua
 ln -s ~/dotfiles/rc.lua ~/.config/awesome/rc.lua
 git clone https://github.com/pltanton/net_widgets ~/.config/awesome/net_widgets
 git clone https://github.com/streetturtle/awesome-wm-widgets ~/.config/awesome/awesome-wm-widgets
+
+git clone https://github.com/haikarainen/light.git
+pushd light
+./autogen.sh
+./configure
+make
+sudo make install
+rm -rf light
+popd
 # }}}
 # Configuring gnome-terminal {{{
 progress "Configure gnome-terminal"

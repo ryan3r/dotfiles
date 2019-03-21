@@ -32,7 +32,8 @@ apt install -y \
 	fonts-firacode \
 	dconf-cli \
 	code \
-	network-manager
+	network-manager \
+	progress
 
 wget -qO- https://get.docker.com/ | bash
 usermod -aG docker ryan
