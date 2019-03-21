@@ -6,7 +6,7 @@ nvimVersion="0.3.4"
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=7
+PROGRESS_TOTAL=8
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -219,3 +219,8 @@ ln -s ~/dotfiles/rc.lua ~/.config/awesome/rc.lua
 git clone https://github.com/pltanton/net_widgets ~/.config/awesome/net_widgets
 git clone https://github.com/streetturtle/awesome-wm-widgets ~/.config/awesome/awesome-wm-widgets
 # }}}
+# Configuring gnome-terminal {{{
+progress "Configure gnome-terminal"
+dconf load /org/gnome/terminal/legacy/ < ~/dotfiles/gterm
+rm ~/gterm
+}}}
