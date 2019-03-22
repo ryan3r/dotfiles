@@ -1,12 +1,10 @@
 #!/bin/bash
 set -e
 
-nvimVersion="0.3.4"
-
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=8
+PROGRESS_TOTAL=7
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -17,8 +15,6 @@ print_run() {
     echo -e "\033[0;36m>> $1\033[0;0m"
     eval "$1"
 }
-
-sudo ~/dotfiles/bin/install-deps
 
 mkdir -p ~/dotfiles/tools
 PATH="~/bin:~/dotfiles/bin:$PATH"
@@ -80,31 +76,6 @@ for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgre
 done
 
 mkdir -p ~/bin
-# }}}
-# Install nvim {{{
-progress "Installing nvim"
-
-if [ -f ~/dotfiles/tools/nvim/bin/nvim ]; then
-	curNvim="$(~/dotfiles/tools/nvim/bin/nvim --version | head -1 | grep -o "[0-9]*\.[0-9]*\.[0-9]*")"
-fi
-
-if [ "$curNvim" != "$nvimVersion" ]; then
-	nvimTmp=$(mktemp -d)
-	nvimTmpCleanup() {
-		rm -rf $nvimTmp
-	}
-	trap nvimTmpCleanup EXIT
-
-	pushd $nvimTmp
-	wget https://github.com/neovim/neovim/releases/download/v$nvimVersion/nvim-linux64.tar.gz
-	tar xf nvim-linux64.tar.gz
-	popd
-	rm -rf ~/dotfiles/tools/nvim
-	mv $nvimTmp/nvim-linux64 ~/dotfiles/tools/nvim
-fi
-
-rm -rf ~/bin/nvim
-ln -s ~/dotfiles/tools/nvim/bin/nvim ~/bin/nvim
 # }}}
 # Install app plugins {{{
 progress "Installing app plugins"
@@ -232,6 +203,6 @@ popd
 # }}}
 # Configuring gnome-terminal {{{
 progress "Configure gnome-terminal"
-dconf load /org/gnome/terminal/legacy/ < ~/dotfiles/gterm
+command -v >/dev/null dconf && dconf load /org/gnome/terminal/legacy/ < ~/dotfiles/gterm
 rm ~/gterm
 }}}
