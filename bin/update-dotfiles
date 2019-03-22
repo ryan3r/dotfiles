@@ -18,6 +18,8 @@ print_run() {
     eval "$1"
 }
 
+~/dotfiles/bin/install-deps
+
 mkdir -p ~/dotfiles/tools
 PATH="~/bin:~/dotfiles/bin:$PATH"
 # }}}
