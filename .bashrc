@@ -201,7 +201,7 @@ fi
 
 source ~/.ssh-agent-env
 
-if [ "$(ssh-add -l 2>&1)" == "Error connecting to agent: Connection refused" ]; then
+if ! ssh-add -l >/dev/null 2>/dev/null; then
 	start_ssh_agent
 	source ~/.ssh-agent-env
 fi
