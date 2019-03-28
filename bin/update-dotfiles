@@ -76,6 +76,10 @@ for file in $(ls -1a | tail -n $(($(ls -1a | wc -l) - 2)) | fgrep -v .git | fgre
 done
 
 mkdir -p ~/bin
+
+rm ~/bashrc
+[ -s "~/.bashrc" ] && rm ~/.bashrc
+[ -f "~/.bashrc" ] || echo "source ~/dotfiles/bashrc"
 # }}}
 # Install app plugins {{{
 progress "Installing app plugins"

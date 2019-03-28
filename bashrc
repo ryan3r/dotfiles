@@ -106,7 +106,7 @@ if [ "$color_prompt" = yes ]; then
 				PS1="$PS1\[\033[103m\]\[\033[30m\]"
 				foreground="\[\033[0;93m\]"
 			fi
-			PS1="$PS1 $(echo -e "\ue0a0")$(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null) $foreground\[\033[48;5;237m\]$sep"
+			PS1="$PS1 $(echo -e "\ue0a0") $(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null) $foreground\[\033[48;5;237m\]$sep"
 		else
 			PS1="$PS1\[\033[0;46m\] \h \[\033[36m\]\[\033[48;5;237m\]$sep"
 		fi
@@ -116,7 +116,7 @@ if [ "$color_prompt" = yes ]; then
 		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
 			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
 		fi
-		
+	
 		PS1="$PS1\[\033[48;5;237m\]\[\033[39m\] $cwd \[\033[00m\]\[\033[38;5;237m\]$sep\[\033[00m\] "
 	}
 
