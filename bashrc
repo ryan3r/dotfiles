@@ -120,7 +120,7 @@ if [ "$color_prompt" = yes ]; then
 		PS1="$PS1\[\033[48;5;237m\]\[\033[39m\] $cwd \[\033[00m\]\[\033[38;5;237m\]$sep\[\033[00m\] "
 	}
 
-	if [ -z "$LC_R3R_FANCY" ]; then
+	if [ "$LC_TELEPHONE" != "666" ]; then
 		PROMPT_COMMAND=custom_prompt
 	else
 		PROMPT_COMMAND=fancy_prompt
