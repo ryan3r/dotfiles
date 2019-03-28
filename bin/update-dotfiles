@@ -79,7 +79,7 @@ mkdir -p ~/bin
 
 rm ~/bashrc
 [ -s "~/.bashrc" ] && rm ~/.bashrc
-[ -f "~/.bashrc" ] || echo "source ~/dotfiles/bashrc"
+[ -f "~/.bashrc" ] || echo "source ~/dotfiles/bashrc" >~/.bashrc
 # }}}
 # Install app plugins {{{
 progress "Installing app plugins"
