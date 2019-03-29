@@ -112,15 +112,20 @@ if [ "$color_prompt" = yes ]; then
 		fi
 
 		# Show only 2 dirs
-		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")"
-		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
-			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
-		fi
+		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/"| awk -F/ '{print $NF}')"
 	
 		PS1="$PS1\[\033[1;39m\] $cwd \[\033[00m\]\[\033[94m\]$sep\[\033[00m\] "
 	}
 
 	prompt_picker() {
+		# Set the prompt title
+		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")"
+		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
+			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
+		fi
+
+		echo -en "\033]0;$(whoami)@$(hostname): $cwd\a"
+
 		if [ -z "$LC_R3R_FANCY" ]; then
 			custom_prompt
 		else
