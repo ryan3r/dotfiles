@@ -100,15 +100,15 @@ if [ "$color_prompt" = yes ]; then
 			local status="$(git status --porcelain)"
 			local foreground=
 			if [ -z "$status" ]; then
-				PS1="$PS1\[\033[0;42m\]"
+				PS1="$PS1\[\033[1;42m\]"
 				foreground="\[\033[0;32m\]"
 			else
-				PS1="$PS1\[\033[103m\]\[\033[30m\]"
+				PS1="$PS1\[\033[0;103m\]\[\033[30m\]"
 				foreground="\[\033[0;93m\]"
 			fi
 			PS1="$PS1 $(echo -e "\ue0a0") $(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null) $foreground\[\033[104m\]$sep"
 		else
-			PS1="$PS1\[\033[48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
+			PS1="$PS1\[\033[1;48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
 		fi
 
 		# Show only 2 dirs
@@ -117,14 +117,18 @@ if [ "$color_prompt" = yes ]; then
 			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
 		fi
 	
-		PS1="$PS1\[\033[0;104m\]\[\033[39m\] $cwd \[\033[00m\]\[\033[94m\]$sep\[\033[00m\] "
+		PS1="$PS1\[\033[1;39m\] $cwd \[\033[00m\]\[\033[94m\]$sep\[\033[00m\] "
 	}
 
-	if [ -z "$LC_R3R_FANCY" ]; then
-		PROMPT_COMMAND=custom_prompt
-	else
-		PROMPT_COMMAND=fancy_prompt
-	fi
+	prompt_picker() {
+		if [ -z "$LC_R3R_FANCY" ]; then
+			custom_prompt
+		else
+			fancy_prompt
+		fi
+	}
+
+	PROMPT_COMMAND=prompt_picker
 else
    	PS1='${debian_chroot:+($debian_chroot)}\h:\w> '
 fi
