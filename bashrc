@@ -105,15 +105,18 @@ if [ "$color_prompt" = yes ]; then
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
 			# Git ahead and behind status (probably could be cleaner)
-			local behindBy=" -$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
-			if [ "$behindBy" == " -0" ]; then
-				behindBy=" +$(git rev-list --left-right --count origin/master...master 2>&1 | awk '{print $2}')"
-			fi
-			if [ "$behindBy" == " +0" ]; then
-				behindBy=""
-			fi
+			local behindBy="$(git diff --name-only | wc -l)"
 
-			#$(echo -e "\u00b1")
+			if [ "$behindBy" == "0" ]; then
+				if [ "$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')" != "0" ]; then
+					behindBy="-"
+				elif [ "$(git rev-list --left-right --count origin/master...master 2>&1 | awk '{print $2}')" != "0" ]; then
+					behindBy="+"
+				fi
+			else
+				behindBy=" $(echo -e "\u00b1")$behindBy"
+			fi
+			
 			local status="$(git status --porcelain)"
 			local foreground=
 			if [ -z "$status" ]; then
