@@ -16,8 +16,7 @@ conky.config = {
 }
 
 conky.text = [[
-$nodename
-$battery_bar
+$nodename ${alignr 10} ${battery_bar 6, 300}
 $hr
 ${color grey}Uptime:$color $uptime
 ${color grey}CPU Usage:$color $cpu% ${alignc} ${cpubar 4, 220} ${alignr} $freq_g
