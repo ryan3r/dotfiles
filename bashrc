@@ -231,8 +231,10 @@ command -v vim >/dev/null && {
 }
 
 command -v nvim >/dev/null && {
-	export EDITOR=~/bin/nvim
+	export EDITOR=nvim
 }
+
+[ -f ~/bin/nvim ] && export EDITOR="~/bin/nvim"
 
 # Connect external docker engine to wsl docker client
 if [ ! -z "$IS_WSL" ] && [ ! -S /var/run/docker.sock ]; then
