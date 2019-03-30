@@ -228,16 +228,18 @@ start_ssh_agent() {
 	fi
 }
 
-if [ ! -f ~/.ssh-agent-env ]; then
-	start_ssh_agent
-fi
+[ -f ~/.ssh/id_rsa ] && {
+	if [ ! -f ~/.ssh-agent-env ]; then
+		start_ssh_agent
+	fi
 
-source ~/.ssh-agent-env
-
-if ! ssh-add -l >/dev/null 2>/dev/null; then
-	start_ssh_agent
 	source ~/.ssh-agent-env
-fi
+
+	if ! ssh-add -l >/dev/null 2>/dev/null; then
+		start_ssh_agent
+		source ~/.ssh-agent-env
+	fi
+}
 
 # Personal bin
 if [ -d ~/bin ]; then
