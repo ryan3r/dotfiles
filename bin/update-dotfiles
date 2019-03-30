@@ -191,7 +191,7 @@ git config --global alias.tree "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%C
 # Configure auto updates {{{
 progress "Configuring auto update"
 tmpFile="$(mktemp)"
-crontab -l >$tmpFile 2>/dev/null
+crontab -l >$tmpFile 2>/dev/null || true
 
 if [ "$(wc -l $tmpFile)" == "0" ]; then
 	echo "# m h dom mon dow command" >$tmpFile
