@@ -4,7 +4,7 @@ set -e
 # {{{
 # Print the progress and heading
 PROGRESS=0
-PROGRESS_TOTAL=7
+PROGRESS_TOTAL=8
 progress() {
     PROGRESS=$(($PROGRESS + 1))
     echo -e "\033[0;32m[$PROGRESS/$PROGRESS_TOTAL] $1\033[0;0m"
@@ -187,4 +187,22 @@ git config --global alias.undo "reset --soft HEAD~1"
 git config --global alias.lg "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
 git config --global alias.l1 "log -1 --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
 git config --global alias.tree "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\" --graph --all"
+# }}}
+# Configure auto updates {{{
+progress "Configuring auto update"
+tmpFile="$(mktemp)"
+crontab -l >$tmpFile 2>/dev/null
+
+if [ "$(wc -l $tmpFile)" == "0" ]; then
+	echo "# m h dom mon dow command" >$tmpFile
+fi
+
+# Remove old dotfiles rule
+sed -i '/.*update-dotfiles.*/ d' $tmpFile
+
+# Add new dotfiles rule
+echo "30 3 * * * ~/dotfiles/bin/update-dotfiles" >> $tmpFile
+
+cat $tmpFile | crontab -
+rm $tmpFile
 # }}}
