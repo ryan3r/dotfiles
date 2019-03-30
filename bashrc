@@ -112,6 +112,8 @@ if [ "$color_prompt" = yes ]; then
 					behindBy="-"
 				elif [ "$(git rev-list --left-right --count origin/master...master 2>&1 | awk '{print $2}')" != "0" ]; then
 					behindBy="+"
+				else
+					behindBy=""
 				fi
 			else
 				behindBy=" $(echo -e "\u00b1")$behindBy"
