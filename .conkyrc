@@ -1,0 +1,44 @@
+conky.config = {
+	background = false,
+	own_window = true,
+	own_window_class = "Conky",
+	own_window_argb_visual = true,
+	own_window_argb_value = 0,
+	own_window_type = "normal",
+	own_window_hints = "undecorated,below,sticky,skip_taskbar,skip_pager",
+	alignment = "top_right",
+	font = "Hack:size=12",
+	use_xft = true,
+	double_buffer = true,
+	gap_x = 20,
+	gap_y = 55,
+	draw_shades = true,
+}
+
+conky.text = [[
+$nodename
+$battery_bar
+$hr
+${color grey}Uptime:$color $uptime
+${color grey}CPU Usage:$color $cpu% ${alignc} ${cpubar 4, 220} ${alignr} $freq_g
+${color grey}RAM Usage:$color $memperc% ${alignc} ${membar 4, 220} ${alignr} $memmax
+${color grey}Disk Usage:$color ${fs_used /} ${alignc} ${fs_bar 4, 150 /} ${alignr} ${fs_size /}
+$hr
+${color grey}Networking: 
+${color grey}IP:$color ${addr wlp1s0}
+${color grey}Gateway:$color ${gw_ip} (via ${gw_iface})
+${color grey}Up:$color ${upspeed wlp1s0} ${color grey} - Down:$color ${downspeed wlp1s0}
+${downspeedgraph wlp1s0}
+$hr
+${color grey}Name              PID   CPU%   MEM%
+${color lightgrey} ${top name 1} ${top pid 1} ${top cpu 1} ${top mem 1}
+${color lightgrey} ${top name 2} ${top pid 2} ${top cpu 2} ${top mem 2}
+${color lightgrey} ${top name 3} ${top pid 3} ${top cpu 3} ${top mem 3}
+${color lightgrey} ${top name 4} ${top pid 4} ${top cpu 4} ${top mem 4}
+${color lightgrey} ${top name 5} ${top pid 5} ${top cpu 5} ${top mem 5}
+${color lightgrey} ${top name 6} ${top pid 6} ${top cpu 6} ${top mem 6}
+${color lightgrey} ${top name 7} ${top pid 7} ${top cpu 7} ${top mem 7}
+${color lightgrey} ${top name 8} ${top pid 8} ${top cpu 8} ${top mem 8}
+${color lightgrey} ${top name 9} ${top pid 9} ${top cpu 9} ${top mem 9}
+${color lightgrey} ${top name 10} ${top pid 10} ${top cpu 10} ${top mem 10}
+]]
