@@ -94,21 +94,38 @@ if [ "$color_prompt" = yes ]; then
 	fancy_prompt() {
 		PS1=""
 		local sep="$(echo -e "\ue0b0")"
+		local prebranch=""
+
+		# Show running jobs
+		if [ $(jobs | wc -l) -gt 0 ]; then
+			PS1="\[\033[0;43m\] $(echo -e "\u2699")"
+			prebranch="\[\033[033m\]$sep"
+		fi
 
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
+			# Git ahead and behind status (probably could be cleaner)
+			local behindBy="$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
+			if [ "$behindBy" == "0" ]; then
+				behindBy="$(git rev-list --left-right --count origin/master...master 2>&1 | awk '{print $2}')"
+			fi
+			if [ "$behindBy" == "0" ]; then
+				behindBy="0"
+			fi
+
 			local status="$(git status --porcelain)"
 			local foreground=
 			if [ -z "$status" ]; then
-				PS1="$PS1\[\033[1;42m\]"
+				PS1="$PS1\[\033[42m\]$prebranch\[\033[0;37m\]\[\033[1;42m\]"
 				foreground="\[\033[0;32m\]"
 			else
-				PS1="$PS1\[\033[0;103m\]\[\033[30m\]"
+				PS1="$PS1\[\033[103m\]$prebranch\[\033[0;103m\]\[\033[30m\]"
 				foreground="\[\033[0;93m\]"
 			fi
-			PS1="$PS1 $(echo -e "\ue0a0") $(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null) $foreground\[\033[104m\]$sep"
+			local branch="$(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null)"
+			PS1="$PS1 $(echo -e "\ue0a0")$branch $(echo -e "\u00b1")$behindBy $foreground\[\033[104m\]$sep"
 		else
-			PS1="$PS1\[\033[1;48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
+			PS1="$PS1\[\033[48;5;237m\]$prebranch\[\033[37m\]\[\033[1;48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
 		fi
 
 		# Show only 2 dirs
