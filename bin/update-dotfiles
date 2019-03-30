@@ -184,29 +184,7 @@ fi
 progress "Configure git"
 git config --global alias.co checkout
 git config --global alias.undo "reset --soft HEAD~1"
-git config --global alias.lg "log --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\""
-git config --global alias.l1 "log -1 --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\""
-git config --global alias.tree "log --format=\\\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\\\" --graph --all"
+git config --global alias.lg "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
+git config --global alias.l1 "log -1 --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
+git config --global alias.tree "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\" --graph --all"
 # }}}
-# Configure awesome {{{
-progress "Configure awesome"
-mkdir -p ~/.config/awesome
-rm ~/rc.lua
-ln -s ~/dotfiles/rc.lua ~/.config/awesome/rc.lua
-git clone https://github.com/pltanton/net_widgets ~/.config/awesome/net_widgets
-git clone https://github.com/streetturtle/awesome-wm-widgets ~/.config/awesome/awesome-wm-widgets
-
-git clone https://github.com/haikarainen/light.git
-pushd light
-./autogen.sh
-./configure
-make
-sudo make install
-rm -rf light
-popd
-# }}}
-# Configuring gnome-terminal {{{
-progress "Configure gnome-terminal"
-command -v >/dev/null dconf && dconf load /org/gnome/terminal/legacy/ < ~/dotfiles/gterm
-rm ~/gterm
-}}}
