@@ -117,14 +117,7 @@ if [ "$color_prompt" = yes ]; then
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
 			# Git ahead and behind status 
-			local behindBy="$(git diff --cached --name-only | wc -l)"
-
-			if [ "$behindBy" == "0" ]; then
-				behindBy=""
-			else
-				behindBy=" $(echo -e "\u00b1")$behindBy"
-			fi
-
+			local behindBy=""
 			case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
 				ahead)
 					behindBy="+$behindBy"
@@ -137,6 +130,11 @@ if [ "$color_prompt" = yes ]; then
 					;;
 			esac
 			
+			local isSsh="$(git remote get-url origin 2>/dev/null | fgrep -s "@")"
+			if [ ! -z "$isSsh" ]; then
+				isSsh="$(echo -e "\ufcb5")"
+			fi
+
 			local status="$(git status --porcelain)"
 			local foreground=
 			if [ -z "$status" ]; then
@@ -147,7 +145,7 @@ if [ "$color_prompt" = yes ]; then
 				foreground="\[\033[0;93m\]"
 			fi
 			local branch="$(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null)"
-			PS1="$PS1 $(echo -e "\ue0a0")$branch$behindBy $foreground\[\033[104m\]$sep"
+			PS1="$PS1 $(echo -e "\ue0a0")$branch$behindBy $isSsh$foreground\[\033[104m\]$sep"
 		else
 			PS1="$PS1\[\033[48;5;237m\]$prebranch\[\033[37m\]\[\033[1;48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
 		fi
