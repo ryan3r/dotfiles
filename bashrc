@@ -108,23 +108,22 @@ if [ "$color_prompt" = yes ]; then
 			local behindBy="$(git diff --cached --name-only | wc -l)"
 
 			if [ "$behindBy" == "0" ]; then
-				case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
-					ahead)
-						behindBy="+"
-						;;
-					behind)
-						behindBy="-"
-						;;
-					diverged)
-						behindBy="~"
-						;;
-					*)
-						behindBy=""
-						;;
-				esac
+				behindBy=""
 			else
 				behindBy=" $(echo -e "\u00b1")$behindBy"
 			fi
+
+			case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
+				ahead)
+					behindBy="+$behindBy"
+					;;
+				behind)
+					behindBy="-$behindBy"
+					;;
+				diverged)
+					behindBy="*$behindBy"
+					;;
+			esac
 			
 			local status="$(git status --porcelain)"
 			local foreground=
