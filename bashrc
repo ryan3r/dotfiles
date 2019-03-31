@@ -104,17 +104,24 @@ if [ "$color_prompt" = yes ]; then
 
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
-			# Git ahead and behind status (probably could be cleaner)
-			local behindBy="$(git diff --name-only | wc -l)"
+			# Git ahead and behind status 
+			local behindBy="$(git diff --cached --name-only | wc -l)"
 
 			if [ "$behindBy" == "0" ]; then
-				if [ "$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')" != "0" ]; then
-					behindBy="-"
-				elif [ "$(git rev-list --left-right --count origin/master...master 2>&1 | awk '{print $2}')" != "0" ]; then
-					behindBy="+"
-				else
-					behindBy=""
-				fi
+				case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
+					ahead)
+						behindBy="+"
+						;;
+					behind)
+						behindBy="-"
+						;;
+					diverged)
+						behindBy="~"
+						;;
+					*)
+						behindBy=""
+						;;
+				esac
 			else
 				behindBy=" $(echo -e "\u00b1")$behindBy"
 			fi
