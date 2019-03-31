@@ -97,8 +97,20 @@ if [ "$color_prompt" = yes ]; then
 		local prebranch=""
 
 		# Show running jobs
-		if [ $(jobs | wc -l) -gt 0 ]; then
-			PS1="\[\033[0;43m\] $(echo -e "\u2699")"
+		local dockerJobs="$(docker ps -q 2>/dev/null)"
+		local hasVim="$(jobs | fgrep "vim")"
+		if [ ! -z "$hasVim" ] || [ ! -z "$dockerJobs" ]; then
+			PS1="\[\033[0;43m\]"
+
+			if [ ! -z "$dockerJobs" ]; then
+				PS1="$PS1 $(echo -e "\uf308")"
+			fi
+
+			if [ ! -z "$hasVim" ]; then
+				PS1="$PS1 $(echo -e "\ue7c5")"
+			fi
+
+			PS1="$PS1 "
 			prebranch="\[\033[033m\]$sep"
 		fi
 
