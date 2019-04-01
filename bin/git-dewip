@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+	# Start the rebase
+	EDITOR=$0 git rebase -i $(git rev-list --first-parent HEAD | tail -1)
+elif fgrep "pick" $1 >/dev/null; then
+	# Pick the wip commits
+	tmp=$(mktemp)
+	squashNext=no
+
+	while read line; do
+		# Squash this commit
+		if [ "$squashNext" == "yes" ]; then
+			echo $line | sed 's/pick/squash/' >>$tmp
+		else
+			echo $line >>$tmp
+		fi
+
+		squashNext=no
+		# Squash the next line
+		if echo $line | fgrep 'WIP:' >/dev/null; then
+			squashNext=yes
+		fi
+	done < "$1"
+
+	mv $tmp $1
+else
+	# Turn the wip commits into bullet points
+	tmp=$(mktemp -d)
+	body=$tmp/body
+	last=$tmp/last
+
+	while read line; do
+		if echo $line | grep '# This is the .*commit message' >/dev/null; then
+			cat $last >>$body
+			echo -n >$last
+		else
+			echo $line >>$last
+		fi
+	done < "$1"
+
+	cat $last >$1
+	fgrep "WIP:" $body | sed 's/WIP:/ * /' >>$1
+	rm -r $tmp
+fi
