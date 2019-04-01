@@ -187,6 +187,7 @@ git config --global alias.undo "reset --soft HEAD~1"
 git config --global alias.lg "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
 git config --global alias.l1 "log -1 --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
 git config --global alias.tree "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\" --graph --all"
+git config --global alias.dewip '!~/dotfiles/bin/git-dewip'
 # }}}
 # Configure auto updates {{{
 progress "Configuring auto update"
