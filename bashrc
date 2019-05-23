@@ -8,6 +8,8 @@ case $- in
       *) return;;
 esac
 
+[ "$(uname)" == "Darwin" ] && IS_MAC=true
+
 # Start tmux for ssh connections
 # shopt -q login_shell && [ ! -z "$SSH_CONNECTION" ] && [ -z "$TMUX" ] && {
 # 	if tmux ls >/dev/null 2>&1; then
@@ -34,7 +36,7 @@ shopt -s checkwinsize
 
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
-shopt -s globstar
+[ -z "$IS_MAC" ] && shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -226,12 +228,12 @@ if ! shopt -oq posix; then
 fi
 
 # Detect wsl
-grep -q Microsoft /proc/version && IS_WSL=1
+[ -z "$IS_MAC" ] && grep -q Microsoft /proc/version && IS_WSL=1
 
 # Make sure the ssh-agent is running and configured
 start_ssh_agent() {
 	ssh-agent > ~/.ssh-agent-env
-	sed -i 's/echo Agent pid [0-9]*;//' ~/.ssh-agent-env
+	sed -i "" '/echo Agent pid [0-9]*;/ d' ~/.ssh-agent-env
 	source ~/.ssh-agent-env
 
 	if [ "$(ssh-add -l 2>/dev/null)" == "The agent has no identities." ]; then
@@ -277,7 +279,7 @@ if [ ! -z "$IS_WSL" ] && [ ! -S /var/run/docker.sock ]; then
 	(sudo bash -c 'socat UNIX-LISTEN:/var/run/docker.sock,fork,group=docker,umask=007 EXEC:"npiperelay.exe -ep -s //./pipe/docker_engine",nofork >/dev/null 2>&1' &)
 fi
 
-shopt -s autocd
+[ -z "$IS_MAC" ] && shopt -s autocd
 
 # Fetch changes in the dotfiles if we have an ssh key
 #pushd ~/dotfiles >/dev/null

@@ -51,7 +51,6 @@ set foldlevel=3
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
-set spell!
 set modeline
 set complete+=.,w,b,t,i,u,kspell
 
@@ -65,6 +64,7 @@ nmap <leader>i :set list!<enter>
 nmap <leader>p :CtrlPBuffer<enter>
 nmap <leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
 nmap <leader>c :noh<enter>
+nmap <leader>s :set spell!<enter>
 
 " Switch vim windows
 map <C-j> <Esc><C-W>j
@@ -112,6 +112,7 @@ autocmd FileType tmux setlocal foldmethod=marker
 
 " Based on https://stackoverflow.com/questions/26962999/wrong-indentation-when-editing-yaml-in-vim
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+autocmd FileType py setlocal expandtab smarttab
 
 if has("nvim")
 	autocmd TermOpen * setlocal relativenumber! number!
