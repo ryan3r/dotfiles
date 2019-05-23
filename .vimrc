@@ -65,6 +65,8 @@ nmap <leader>p :CtrlPBuffer<enter>
 nmap <leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
 nmap <leader>c :noh<enter>
 nmap <leader>s :set spell!<enter>
+nmap <leader>e :lopen<enter>
+nmap <leader>q :lclose<enter>
 
 " Switch vim windows
 map <C-j> <Esc><C-W>j
