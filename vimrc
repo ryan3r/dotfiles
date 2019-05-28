@@ -92,9 +92,9 @@ if has("nvim")
 	else
 		nmap \t :vsplit term://bash<enter>
 	endif
-endif
 
-tnoremap <Esc> <C-\><C-n>
+	tnoremap <Esc> <C-\><C-n>
+endif
 " }}}
 " Commands {{{
 command! Todo :vimgrep /TODO/ **/*.*<enter>

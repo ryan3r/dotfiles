@@ -1,0 +1,18 @@
+#!/bin/bash
+
+. ~/dotfiles/platform
+
+can_install() {
+	return
+}
+
+install() {
+	rm -f ~/.bashrc
+	echo "source ~/dotfiles/bashrc" > ~/.bashrc
+}
+
+update() {
+	return
+}
+
+installer_main "$1"

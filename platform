@@ -1,0 +1,190 @@
+#!/bin/bash
+set -e
+
+export PATH=~/bin:~/dotfiles/bin:$PATH
+
+######################################
+# Utilities                          #
+######################################
+
+# Prompt the user before running sudo
+[ -z "SUDO_STATUS" ] && SUDO_STATUS=ask
+export SUDO_STATUS
+sudo2() {
+	if [ "$EUID" == "0" ]; then
+		$*
+		return
+	fi
+
+	if [ "$SUDO_STATUS" == "ask" ]; then
+		local response
+		read -p "May I run sudo? (y/N): " response
+		SUDO_STATUS=no
+
+		if [ "$response" == "y" ] || [ "$response" == "yes" ]; then
+			SUDO_STATUS=yes
+		fi
+	fi
+
+	if [ "$SUDO_STATUS" != "yes" ]; then
+		return 1
+	fi
+
+	sudo $*
+}
+
+download() {
+	if command -v curl >/dev/null; then
+		curl -L $1 >$2
+	elif command -v wget >/dev/null; then
+		wget -O $2 $1
+	else
+		pkg_install curl || pkg_install wget || {
+			echo "Please install wget or curl"
+			exit 1
+		}
+
+		download $1 $2
+	fi
+}
+
+has_cmd() {
+	command -v $1 >/dev/null
+}
+
+display_step() {
+    echo -e "\033[0;36m>> $1\033[0;0m"
+}
+
+######################################
+# Platform detection                 #
+######################################
+
+PLATFORM_MAC=false
+PLATFORM_OPENWRT=false
+PLATFORM_PKG=Unknown
+PLATFORM_LOW_SPACE=false
+PLATFORM_BUILD=false
+
+[ "$(uname)" == "Darwin" ] && PLATFORM_MAC=true
+has_cmd apt-get && PLATFORM_PKG=apt
+has_cmd yum && PLATFORM_PKG=yum
+has_cmd apk && PLATFORM_PKG=apk
+$PLATFORM_MAC && PLATFORM_PKG=brew
+has_cmd cc && has_cmd cpp && has_cmd make && PLATFORM_BUILD=true
+
+if ! $PLATFORM_MAC; then
+	fgrep OpenWrt /proc/version && PLATFORM_OPENWRT=true
+fi
+
+export PLATFORM_MAC PLATFORM_PKG PLATFORM_OPENWRT PLATFORM_LOW_SPACE PLATFORM_BUILD
+
+######################################
+# Package management                 #
+######################################
+
+_pkg_lists_updated=false
+pkg_update_lists() {
+	$_pkg_lists_updated && return
+
+	case "$PLATFORM_PKG" in
+		apt) sudo2 apt-get update -y ;;
+		yum) ;;
+		apk) sudo2 apk update ;;
+		brew) ;;
+		*)
+			echo "We could not identify your package manager"
+			exit 127
+			;;
+	esac
+
+	_pkg_lists_updated=true
+}
+
+_pkg_map() {
+	local name="$1"
+
+	# Mappings to platform specific package names
+	case "$PLATFORM_PKG-$1" in
+
+	esac
+
+	echo $name
+}
+
+pkg_install() {
+	pkg_update_lists
+
+	local name="$(_pkg_map $1)"
+
+	case "$PLATFORM_PKG" in
+		apt) sudo2 apt-get install -y $name ;;
+		yum) sudo2 yum install $name ;;
+		apk) sudo2 apk add $name ;;
+		brew) brew install $name ;;
+		*)
+			echo "We could not identify your package manager"
+			exit 127
+			;;
+	esac
+}
+
+pkg_version() {
+	pkg_update_lists
+
+	local name="$(_pkg_map $1)"
+
+	case "$PLATFORM_PKG" in
+		apt) apt-cache show $name | awk '/Version/ {print $2}' ;;
+		brew) brew info $name | awk '/stable/ {print $3}' ;;
+		*)
+			echo "We could not identify your package manager"
+			exit 127
+			;;
+	esac
+}
+
+git_install() {
+	if [ -d $2 ]; then
+		[ -z "$NO_PULL" ] || return
+		pushd $2 >/dev/null 2>&1
+		git checkout -f >/dev/null 2>&1
+		git pull >/dev/null 2>&1
+		popd >/dev/null 2>&1
+	else
+		git clone $1 $2
+	fi
+}
+
+######################################
+# Install dependencies               #
+######################################
+
+ensure_build_tools() {
+	if ! $PLATFORM_BUILD; then
+		pkg_install gcc && pkg_install g++ && pkg_install make || {
+			echo "Could not find or install build tools"
+			exit 1
+		}
+	fi
+}
+
+if $PLATFORM_MAC && ! has_cmd brew; then
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+######################################
+# Entrypoints                        #
+######################################
+
+installer_main() {
+	case "$1" in
+		can-install) can_install ;;
+		install) install ;;
+		update) update ;;
+		*)
+			echo "Usage: installer <can-install|install|update>"
+			exit 1
+			;;
+	esac
+}

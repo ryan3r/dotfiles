@@ -1,0 +1,31 @@
+#!/bin/bash
+
+run_installers() {
+	cd ~/dotfiles
+	mkdir -p ~/bin ~/tools/libs
+	chmod +x install/*
+	total="$(ls -1 install | wc -l)"
+	i=0
+
+	for installer in $(echo install/* | sort); do
+		i=$(($i + 1))
+		name=$(basename $installer | awk -F- '{print $2}')
+
+		if $installer can-install; then
+			echo -e "\033[0;32m[$i/$total] Installing $name\033[0;0m"
+			$installer $1
+		else
+			echo -e "\033[0;95m[$i/$total] Skipping $name\033[0;0m"
+		fi
+	done
+}
+
+case "$1" in 
+	install|update)
+		run_installers "$1"
+		;;
+	*)
+		echo "Usage: dotfiles <command>"
+		exit 1
+		;;
+esac
