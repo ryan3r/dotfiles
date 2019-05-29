@@ -1,0 +1,5 @@
+has_cmd git || pkg_install git
+
+git_install https://github.com/ryan3r/dotfiles ~/dotfiles
+
+~/dotfiles/bin/dotfiles install

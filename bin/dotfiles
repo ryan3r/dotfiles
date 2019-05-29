@@ -24,6 +24,9 @@ case "$1" in
 	install|update)
 		run_installers "$1"
 		;;
+	gen-dot)
+		cat ~/dotfiles/platform ~/dotfiles/dot
+		;;
 	*)
 		echo "Usage: dotfiles <command>"
 		exit 1
