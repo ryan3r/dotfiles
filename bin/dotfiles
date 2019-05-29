@@ -27,6 +27,9 @@ case "$1" in
 	gen-dot)
 		cat ~/dotfiles/platform ~/dotfiles/dot
 		;;
+	ssh-remote)
+		git remote set-url origin git@github.com:ryan3r/dotfiles
+		;;
 	*)
 		echo "Usage: dotfiles <command>"
 		exit 1
