@@ -1,8 +1,8 @@
 #!/bin/bash
-mkdir -p ~/.cache/r3r-netspeed
+. ~/dotfiles/platform
 
 rootfs="$(df -H / | tail -1 | awk '{print $3 "/" $2}')"
-command -v docker >/dev/null && containers="$(docker ps -q 2>/dev/null | wc -l)"
+command -v docker >/dev/null && containers="$(docker ps -q 2>/dev/null | wcl)"
 updates=0 #"$(($(apt list --upgradable 2>/dev/null | wc -l) - 1))"
 
 if [ "$containers" == "0" ] || [ -z "$containers" ]; then
