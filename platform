@@ -7,6 +7,10 @@ export PATH=~/bin:~/dotfiles/bin:$PATH
 # Utilities                          #
 ######################################
 
+wcl() {
+	wc -l | sed 's/ //g'
+}
+
 # Prompt the user before running sudo
 [ -z "SUDO_STATUS" ] && SUDO_STATUS=ask
 export SUDO_STATUS
