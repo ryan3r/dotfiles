@@ -233,7 +233,11 @@ fi
 # Make sure the ssh-agent is running and configured
 start_ssh_agent() {
 	ssh-agent > ~/.ssh-agent-env
-	sed -i "" '/echo Agent pid [0-9]*;/ d' ~/.ssh-agent-env
+	if [ "$(uname)" == "Darwin" ]; then
+		sed -i "" '/echo Agent pid [0-9]*;/ d' ~/.ssh-agent-env
+	else
+		sed -i '/echo Agent pid [0-9]*;/ d' ~/.ssh-agent-env
+	fi	
 	source ~/.ssh-agent-env
 
 	if [ "$(ssh-add -l 2>/dev/null)" == "The agent has no identities." ]; then
