@@ -59,7 +59,7 @@ let g:ctrlp_show_hidden = 1
 "}}}
 " Key bindings{{{
 nmap <leader>l :set relativenumber!<enter> :set number!<enter>
-nmap <leader>n :NERDTreeToggle<enter>
+nmap <leader>t :NERDTreeToggle<enter>
 nmap <leader>i :set list!<enter>
 nmap <leader>p :CtrlPBuffer<enter>
 nmap <leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
@@ -67,6 +67,7 @@ nmap <leader>c :noh<enter>
 nmap <leader>s :set spell!<enter>
 nmap <leader>e :lopen<enter>
 nmap <leader>q :lclose<enter>
+nmap <leader>n :set relativenumber!<enter>
 
 " Switch vim windows
 map <C-j> <Esc><C-W>j
@@ -83,18 +84,6 @@ nmap ]l :lnext<enter>
 nmap [l :lprev<enter>
 nmap ]c :cnext<enter>
 nmap [c :cprev<enter>
-
-
-" Terminal mode
-if has("nvim")
-	if has("windows")
-		nmap \t :vsplit term://powershell<enter>
-	else
-		nmap \t :vsplit term://bash<enter>
-	endif
-
-	tnoremap <Esc> <C-\><C-n>
-endif
 " }}}
 " Commands {{{
 command! Todo :vimgrep /TODO/ **/*.*<enter>
