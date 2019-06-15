@@ -295,3 +295,5 @@ fi
 if [ ! -z "LC_R3R_FANCY" ]; then
 	command -v lsd >/dev/null && alias ls="lsd"
 fi
+
+. dotfiles bash-completion

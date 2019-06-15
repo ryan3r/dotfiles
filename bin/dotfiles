@@ -1,10 +1,12 @@
 #!/bin/bash
 
+. ~/dotfiles/platform
+
 run_installers() {
 	cd ~/dotfiles
 	mkdir -p ~/bin ~/tools/libs
 	chmod +x install/*
-	total="$(ls -1 install | wc -l)"
+	total="$(ls -1 install | wcl)"
 	i=0
 
 	for installer in $(echo install/* | sort); do
@@ -29,6 +31,9 @@ case "$1" in
 		;;
 	ssh-remote)
 		git remote set-url origin git@github.com:ryan3r/dotfiles
+		;;
+	bash-completion)
+		complete -W "install update gen-dot ssh-remote" dotfiles
 		;;
 	*)
 		echo "Usage: dotfiles <command>"

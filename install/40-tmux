@@ -5,7 +5,7 @@
 LIBEVENT_VERSION="2.1.8"
 NCURSES_VERSION="6.1"
 TMUX_VERSION="2.8"
-TMUX_VERSION_MATCH="^2\.8"
+TMUX_VERSION_MATCH="^2\."
 
 # Build tmux and dependencies from source
 build_libevent() {
