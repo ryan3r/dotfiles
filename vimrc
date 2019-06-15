@@ -25,6 +25,7 @@ Plug 'w0rp/ale'
 Plug 'maximbaz/lightline-ale'
 Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-dispatch'
+Plug 'rust-lang/rust.vim'
 
 if v:version >= 703
 	let g:signify_realtime=1
@@ -67,6 +68,7 @@ nmap <leader>c :noh<enter>
 nmap <leader>s :set spell!<enter>
 nmap <leader>e :lopen<enter>
 nmap <leader>q :lclose<enter>
+nmap <leader>f :ALEFix<enter>
 
 " Switch vim windows
 map <C-j> <Esc><C-W>j
@@ -83,7 +85,8 @@ nmap ]l :lnext<enter>
 nmap [l :lprev<enter>
 nmap ]c :cnext<enter>
 nmap [c :cprev<enter>
-
+nmap ]e <Plug>(ale_next_wrap)
+nmap [e <Plug>(ale_previous_wrap)
 
 " Terminal mode
 if has("nvim")
