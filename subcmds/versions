@@ -1,0 +1,147 @@
+#!/bin/bash
+
+. ~/dotfiles/platform
+
+extract_version() {
+	if has_cmd $1; then
+		$1 --version 2>&1 | grep -Eo "[0-9]+\.[0-9]+(\.[0-9]+)?" | head -1 | awk '{print $1}'
+	fi
+}
+
+runtime_and_pkg() {
+	if has_cmd $2; then
+		local version="$1 $(extract_version $2)"
+
+		if [ ! -z "$3" ] && command -v $3 >/dev/null; then
+			version="$version/$(extract_version $3)"
+		fi
+
+		echo $version
+	fi
+}
+
+# Get the version of python
+if has_cmd python; then
+	python_version="Python $(extract_version python)"
+fi
+
+# Get the version of python3
+if has_cmd python3; then
+	if [ -z "$python_version" ]; then
+		# Make it clear that we have to type python3
+		python_version="Python3 "
+	else
+		python_version+="/"
+	fi
+
+	python_version+="$(extract_version python3)"
+fi
+
+# Check if we have pip
+if has_cmd pip; then
+	python_version+=" (pip"
+
+	if has_cmd pip3; then
+		python_version+="/pip3)"
+	fi
+else
+	if has_cmd pip3; then
+		python_version+=" (pip3)"
+	fi
+fi
+
+[ -z "$python_version" ] || echo $python_version
+
+# Check if we have nodejs
+if has_cmd node || has_cmd nodejs; then
+	echo -n "Node $(extract_version node)"
+
+	if has_cmd nodejs || ! has_cmd node; then
+		echo -n " as nodejs"
+	fi
+
+	# Check if we have npm or yarn
+	if has_cmd npm; then
+		echo -n " (npm"
+
+		if has_cmd yarn; then
+			echo -n "/yarn)"
+		fi
+	elif has_cmd yarn; then
+		echo -n " (yarn)"
+	fi
+
+	echo
+fi
+
+# Check if we have a c/c++ compiler
+has_c=false
+has_cpp=false
+
+if has_cmd gcc || has_cmd clang; then
+	has_c=true
+fi
+
+if has_cmd g++ || has_cmd clang++; then
+	has_cpp=true
+fi
+
+if $has_c || $has_cpp; then
+	c_version=""
+
+	# Determine the name C, C/C++
+	$has_c && c_version+="C"
+	$has_cpp && c_version+="/C++"
+
+	if has_cmd gcc; then
+		c_version+=" gcc/$(extract_version gcc)"
+	else
+		c_version+=" clang/$(extract_version clang)"
+	fi
+
+	# Determine what build tools we have
+	build_system=""
+
+	for tool in make ninja cmake; do
+		if has_cmd $tool; then
+			[ -z "$build_system" ] || build_system+="/"
+			build_system+="$tool"
+		fi
+	done
+
+	[ -z "$build_system" ] || build_system="($build_system)"
+	echo $c_version $build_system
+fi
+
+runtime_and_pkg Rust rustc
+runtime_and_pkg Go go
+
+# Check if we have docker
+if has_cmd docker; then
+	echo -n "Docker $(extract_version docker)"
+
+	if has_cmd docker-compose; then
+		echo -n " [compose]"
+	fi
+
+	if [ "$EUID" != "0" ] && ! id | fgrep docker >/dev/null; then
+		echo -n " (no access)"
+	fi
+
+	echo
+fi
+
+# Check if we have sudo
+if has_cmd sudo; then
+	status="$(sudo -nv 2>&1)"
+
+	if [ -z "$status" ]; then
+		echo "Sudo allowed"
+	elif echo $status | fgrep "may not run sudo" >/dev/null; then
+		echo "Sudo denied"
+	elif echo $status | fgrep "password is required" >/dev/null; then
+		echo "Sudo allowed (password)"
+	else
+		echo "Sudo unknown"
+	fi
+fi
