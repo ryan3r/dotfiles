@@ -36,6 +36,10 @@ case "$1" in
 		complete -W "install update gen-dot ssh-remote" dotfiles
 		;;
 	*)
+		cmd=$1
+		shift
+		[ -x ~/dotfiles/subcmds/$cmd ] && exec ~/dotfiles/subcmds/$cmd $*
+
 		echo "Usage: dotfiles <command>"
 		exit 1
 		;;
