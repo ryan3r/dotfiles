@@ -25,11 +25,13 @@ Plug 'w0rp/ale'
 Plug 'maximbaz/lightline-ale'
 Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-dispatch'
+Plug 'airblade/vim-gitgutter'
+" Plug 'zivyangll/git-blame.vim'
 
-if v:version >= 703
-	let g:signify_realtime=1
-	Plug 'mhinz/vim-signify'
-endif
+" if v:version >= 703
+	" let g:signify_realtime=1
+	" Plug 'mhinz/vim-signify'
+" endif
 
 call plug#end()
 
@@ -51,42 +53,46 @@ set foldlevel=3
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
-set modeline
+" set modeline
+set nomodeline
 set complete+=.,w,b,t,i,u,kspell
+set ttymouse=xterm2
+set mouse=a
+set autowrite
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
 "}}}
 " Key bindings{{{
-nmap <leader>l :set relativenumber!<enter> :set number!<enter>
-nmap <leader>t :NERDTreeToggle<enter>
-nmap <leader>i :set list!<enter>
-nmap <leader>p :CtrlPBuffer<enter>
-nmap <leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
-nmap <leader>c :noh<enter>
-nmap <leader>s :set spell!<enter>
-nmap <leader>e :lopen<enter>
-nmap <leader>q :lclose<enter>
-nmap <leader>n :set relativenumber!<enter>
+nmap <silent><leader>l :set relativenumber!<enter> :set number!<enter>
+nmap <silent><leader>t :NERDTreeToggle<enter>
+nmap <silent><leader>i :set list!<enter>
+nmap <silent><leader>p :CtrlPBuffer<enter>
+nmap <silent><leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
+nmap <silent><leader>c :noh<enter>
+nmap <silent><leader>s :set spell!<enter>
+nmap <silent><leader>e :lopen<enter>
+nmap <silent><leader>q :lclose<enter>
+nmap <silent><leader>n :set relativenumber!<enter>
 
 " Switch vim windows
-map <C-j> <Esc><C-W>j
-map <C-k> <Esc><C-W>k
-map <C-l> <Esc><C-W>l
-map <C-h> <Esc><C-W>h
+" map <C-j> <Esc><C-W>j
+" map <C-k> <Esc><C-W>k
+" map <C-l> <Esc><C-W>l
+" map <C-h> <Esc><C-W>h
 
 " Switch buffer easily
-nmap <Tab> :bnext<enter>
-nmap <S-Tab> :bprev<enter>
+nmap <silent><Tab> :bnext<enter>
+nmap <silent><S-Tab> :bprev<enter>
 
 " Flip through the location and quickfix lists
-nmap ]l :lnext<enter>
-nmap [l :lprev<enter>
-nmap ]c :cnext<enter>
-nmap [c :cprev<enter>
+nmap <silent>]l :lnext<enter>
+nmap <silent>[l :lprev<enter>
+nmap <silent>]c :cnext<enter>
+nmap <silent>[c :cprev<enter>
 " }}}
 " Commands {{{
-command! Todo :vimgrep /TODO/ **/*.*<enter>
+command! Todo :vimgrep /TODO: @rray/ **/*.*<enter>
 " }}}
 " Set the theme{{{
 set background=dark
@@ -105,6 +111,10 @@ autocmd FileType tmux setlocal foldmethod=marker
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 autocmd FileType py setlocal expandtab smarttab
 
+autocmd FocusGained * set relativenumber
+autocmd FocusLost * set norelativenumber
+autocmd FocusLost * silent! w
+
 if has("nvim")
 	autocmd TermOpen * setlocal relativenumber! number!
 endif
@@ -121,7 +131,6 @@ let g:lightline = {
 	\ 'right': [
 	\ 	[ 'linter_checking', 'linter_errors', 'linter_warnings', 'linter_ok' ],
 	\	[ 'lineinfo', 'percent' ], 
-	\ 	[ 'fileformat', 'filetype' ]
 	\ ],
 	\ },
 	\ 'inactive': {
@@ -133,6 +142,7 @@ let g:lightline = {
 	\	'filetype': 'LightLineFileType',
 	\	'fileformat': 'LightLineFileFormat',
 	\	'gitbranch': 'fugitive#head',
+	\   'blame': 'LightLineBlame'
 	\ },
     \ }
 
@@ -142,7 +152,7 @@ let g:lightline.component_expand = {
       \  'linter_warnings': 'lightline#ale#warnings',
       \  'linter_errors': 'lightline#ale#errors',
       \  'linter_ok': 'lightline#ale#ok',
-      \ }
+       \ }
 
 let g:lightline.component_type = {
       \     'linter_checking': 'left',
@@ -167,6 +177,16 @@ endfunction
 
 function! LightLineFileFormat()
 	return winwidth(0) >= 75 ? &fileformat : ''
+endfunction
+
+function! LightLineBlame()
+	let l:blame = gitblame#commit_summary(expand('%'), line('.'))
+	if has_key(l:blame, "error")
+		return ' '
+	else
+		" return blame['summary'] . ' [' . blame['author'] . ']'
+		return blame['author']
+	endif
 endfunction
 " }}}
 " GUI specific options{{{
