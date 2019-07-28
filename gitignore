@@ -1,0 +1,25 @@
+# My global git ignore
+
+# Vim
+*.swp
+
+# Ignore binary files
+*.class
+*.exe
+*.dll
+*.a
+*.o
+*.so
+*.jar
+
+# Ignore log files
+*.log
+
+# Ignore node dependecies
+node_modules
+
+# Ignore archives
+*.jar
+*.zip
+*.tar.gz
+*.tar.bz

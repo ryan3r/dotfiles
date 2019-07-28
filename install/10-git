@@ -11,6 +11,8 @@ install() {
 }
 
 update() {
+	mkdir -p ~/.config/git/
+	ln -f ~/dotfiles/gitignore ~/.config/git/ignore
 	git config --global alias.co checkout
 	git config --global alias.undo "reset --soft HEAD~1"
 	git config --global alias.lg "log --format=\"%C(yellow)%h%Creset %C(cyan)%an%Creset %s\""
