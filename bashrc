@@ -1,50 +1,50 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+# Environment {{{
+# Personal bin
+if [ -d ~/bin ]; then
+	PATH="~/bin:$PATH"
+fi
 
-# If not running interactively, don't do anything
+if [ -d ~/dotfiles/bin ]; then
+	PATH="~/dotfiles/bin:$PATH"
+fi
+
+# Prefer vim
+command -v vim >/dev/null && {
+	export EDITOR=vim
+}
+
+command -v nvim >/dev/null && {
+	export EDITOR=nvim
+}
+
+[ -f ~/bin/nvim ] && export EDITOR="~/bin/nvim"
+
+# Allow **
+[ -z "$IS_MAC" ] && shopt -s globstar
+# }}}
+# Stop if we are not running interactivly {{{
 case $- in
     *i*) ;;
       *) return;;
 esac
-
+# }}} 
+# Platform detection {{{
 [ "$(uname)" == "Darwin" ] && IS_MAC=true
-
-# Start tmux for ssh connections
-# shopt -q login_shell && [ ! -z "$SSH_CONNECTION" ] && [ -z "$TMUX" ] && {
-# 	if tmux ls >/dev/null 2>&1; then
-# 		exec tmux attach
-# 	else
-# 		exec tmux new
-# 	fi
-# }
-
+# }}}
+# History {{{
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
 HISTCONTROL=ignoreboth
-
-# append to the history file, don't overwrite it
-shopt -s histappend
-
-# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
 HISTFILESIZE=2000
-
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
+shopt -s histappend
+# }}}
+# Prompt {{{
+# Set values for LINES and COLUMNS
 shopt -s checkwinsize
-
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-[ -z "$IS_MAC" ] && shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
-fi
 
 if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
 	# We have color support; assume it's compliant with Ecma-48
@@ -58,15 +58,6 @@ fi
 if [ "$color_prompt" = yes ]; then
 	custom_prompt() {
 		PS1=""
-
-		# Check if our dotfiles are behind the remote
-		pushd ~/dotfiles >/dev/null
-		local behindBy="$(git rev-list --left-right --count master...origin/master 2>&1 | awk '{print $2}')"
-		popd >/dev/null
-
-		if [ "$behindBy" != "0" ]; then
-			PS1="\[\033[1;31m\]${PS1}U\[\033[0m\] "
-		fi
 
 		# Show running jobs
 		if [ $(jobs | wc -l) -gt 0 ]; then
@@ -84,10 +75,10 @@ if [ "$color_prompt" = yes ]; then
 			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null))\[\033[0m\] "
 		fi
 
-		# Show only 2 dirs
+		# Show only 1 dirs
 		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")"
-		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
-			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
+		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 2 ]; then
+			cwd="$(echo $cwd | awk -F/ '{print $NF}')"
 		fi
 
 		PS1="$PS1${debian_chroot:+($debian_chroot)}\[\033[00;32m\]\h\[\033[00m\]:\[\033[01;34m\]$cwd\[\033[00m\]$ "
@@ -162,11 +153,7 @@ if [ "$color_prompt" = yes ]; then
 
 		echo -en "\033]0;$(whoami)@$(hostname): $cwd\a"
 
-		if [ -z "$LC_R3R_FANCY" ]; then
-			custom_prompt
-		else
-			fancy_prompt
-		fi
+		custom_prompt
 	}
 
 	PROMPT_COMMAND=prompt_picker
@@ -174,17 +161,8 @@ else
    	PS1='${debian_chroot:+($debian_chroot)}\h:\w> '
 fi
 unset color_prompt 
-
-
-# If this is an xterm set the title to host
-case "$TERM" in
-xterm*|rxvt*)
-    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\h\a\]$PS1"
-    ;;
-*)
-    ;;
-esac
-
+# }}}
+# Color cli apps {{{
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -197,25 +175,20 @@ fi
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-
-# some more ls aliases
+# }}}
+# Aliases {{{
+# ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
-alias l='ls -CF'
 
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+alias iavpn="/opt/cisco/anyconnect/bin/vpn"
 
+# Local alias definitions.
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
-
-if [ -f ~/.bash_aliases.local ]; then
-	. ~/.bash_aliases.local
-fi
-
+# }}}
+# Completion {{{
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -227,73 +200,73 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# Detect wsl
-[ -z "$IS_MAC" ] && grep -q Microsoft /proc/version && IS_WSL=1
-
-# Make sure the ssh-agent is running and configured
-start_ssh_agent() {
-	ssh-agent > ~/.ssh-agent-env
-	if [ "$(uname)" == "Darwin" ]; then
-		sed -i "" '/echo Agent pid [0-9]*;/ d' ~/.ssh-agent-env
-	else
-		sed -i '/echo Agent pid [0-9]*;/ d' ~/.ssh-agent-env
-	fi	
-	source ~/.ssh-agent-env
-
-	if [ "$(ssh-add -l 2>/dev/null)" == "The agent has no identities." ]; then
-		ssh-add
-	fi
-}
-
-[ -f ~/.ssh/id_rsa ] && {
-	if [ ! -f ~/.ssh-agent-env ]; then
-		start_ssh_agent
-	fi
-
-	source ~/.ssh-agent-env
-
-	if ! ssh-add -l >/dev/null 2>/dev/null; then
-		start_ssh_agent
-		source ~/.ssh-agent-env
-	fi
-}
-
-# Personal bin
-if [ -d ~/bin ]; then
-	PATH="~/bin:$PATH"
-fi
-
-if [ -d ~/dotfiles/bin ]; then
-	PATH="~/dotfiles/bin:$PATH"
-fi
-
-# Prefer vim
-command -v vim >/dev/null && {
-	export EDITOR=vim
-}
-
-command -v nvim >/dev/null && {
-	export EDITOR=nvim
-}
-
-[ -f ~/bin/nvim ] && export EDITOR="~/bin/nvim"
-
-# Connect external docker engine to wsl docker client
-if [ ! -z "$IS_WSL" ] && [ ! -S /var/run/docker.sock ]; then
-	(sudo bash -c 'socat UNIX-LISTEN:/var/run/docker.sock,fork,group=docker,umask=007 EXEC:"npiperelay.exe -ep -s //./pipe/docker_engine",nofork >/dev/null 2>&1' &)
-fi
-
+# Type just a directory name to cd
 [ -z "$IS_MAC" ] && shopt -s autocd
 
-# Fetch changes in the dotfiles if we have an ssh key
-#pushd ~/dotfiles >/dev/null
-#if [ "$(ssh-add -l 2>/dev/null)" != "The agent has no identities." ] || [ -z "$(git remote get-url origin | fgrep ssh)" ]; then
-#	(git fetch -a >/dev/null 2>&1 &)
-#fi
-#popd >/dev/null
-
-if [ ! -z "LC_R3R_FANCY" ]; then
-	command -v lsd >/dev/null && alias ls="lsd"
+# Enable bash completion for the dotfiles command
+. dotfiles bash-completion
+# }}}
+# Print the banner {{{
+if [ -z "$COLUMNS" ] && has_cmd tput; then
+	COLUMNS=$(tput cols)
 fi
 
-. dotfiles bash-completion
+if shopt -q login_shell; then
+	# Check if we have sudo
+	if command -v sudo >/dev/null; then
+		status="$(sudo -nv 2>&1)"
+
+		if [ -z "$status" ]; then
+			sudo_status="Sudo allowed"
+		elif echo $status | fgrep "may not run sudo" >/dev/null; then
+			sudo_status="Sudo denied"
+		elif echo $status | fgrep "password is required" >/dev/null; then
+			sudo_status="Sudo allowed (password)"
+		else
+			sudo_status="Sudo unknown"
+		fi
+
+		unset status
+	fi
+
+	# Get the number of updates available
+	if has_cmd apt; then
+		updates=$(($(apt list --upgradable 2>/dev/null | wc -l) -1))
+		[ "$updates" == "0" ] && updates=""
+	fi
+
+	# Check the version of our dotfiles
+	if has_cmd git; then
+		pushd ~/dotfiles >/dev/null
+		sha=$(git log -1 --format=%h)
+		dot_status="$(git status --porcelain)"
+		[ -z "$dot_status" ] || dot_status="+"
+		popd >/dev/null
+
+		dot_version=" $sha$dot_status"
+		unset sha dot_status 
+	fi
+
+	# List the tmux sessions we have open
+	if has_cmd tmux; then
+		tmux_sessions=$(tmux list-sessions -F "#S" 2>/dev/null | tr '\n' ',')
+		# Strip the tailing ,
+		if [ ! -z "$tmux_sessions" ]; then
+			tmux_sessions=${tmux_sessions:0:$((${#tmux_sessions} - 1))}
+			tmux_sessions="Tmux - $(echo $tmux_sessions | sed 's/,/, /g')"
+		fi
+	fi
+
+	# Display some information
+	source ~/dotfiles/box
+
+	box_lines=("Dotfiles$dot_version")
+	[ -z "$sudo_status" ] || box_lines+=("$sudo_status")
+	[ -z "$updates" ] || box_lines+=("$updates Updates")
+	[ -z "$tmux_sessions" ] || box_lines+=("$tmux_sessions")
+
+	box
+
+	unset box_lines box sudo_status dot_version
+fi
+# }}}
