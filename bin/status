@@ -4,8 +4,8 @@
 rootfs="$(df -H / | tail -1 | awk '{print $3 "/" $2}')"
 command -v docker >/dev/null && containers="$(docker ps -q 2>/dev/null | wcl)"
 
-updates=0
-! $IS_MACOS && updates="$(($(apt list --upgradable 2>/dev/null | wc -l) - 1))"
+users=0
+$PLATFORM_MAC || users="$(($(who | awk '{print $1}' | sort | uniq | wc -l) - 1))"
 
 if [ "$containers" == "0" ] || [ -z "$containers" ]; then
 	containers=
@@ -13,10 +13,10 @@ else
 	containers="$containers ctr | "
 fi 
 
-if [ "$updates" == "0" ]; then
-	updates=
+if [ "$users" == "0" ]; then
+	users=
 else
-	updates="$updates up | "
+	users="$users users | "
 fi 
 
-echo "$containers$updates$rootfs"
+echo "$users$containers$rootfs"
