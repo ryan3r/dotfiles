@@ -24,7 +24,12 @@ Plug 'w0rp/ale'
 Plug 'maximbaz/lightline-ale'
 Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-dispatch'
+<<<<<<< HEAD
+Plug 'airblade/vim-gitgutter'
 " Plug 'zivyangll/git-blame.vim'
+=======
+Plug 'rust-lang/rust.vim'
+>>>>>>> b506a2003442382e45debe5ba2124166b406965e
 
 " if v:version >= 703
 	" let g:signify_realtime=1
@@ -62,6 +67,7 @@ let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
 "}}}
 " Key bindings{{{
+<<<<<<< HEAD
 nmap <silent><leader>l :set relativenumber!<enter> :set number!<enter>
 nmap <silent><leader>t :NERDTreeToggle<enter>
 nmap <silent><leader>i :set list!<enter>
@@ -72,6 +78,18 @@ nmap <silent><leader>s :set spell!<enter>
 nmap <silent><leader>e :lopen<enter>
 nmap <silent><leader>q :lclose<enter>
 nmap <silent><leader>n :set relativenumber!<enter>
+=======
+nmap <leader>l :set relativenumber!<enter> :set number!<enter>
+nmap <leader>n :NERDTreeToggle<enter>
+nmap <leader>i :set list!<enter>
+nmap <leader>p :CtrlPBuffer<enter>
+nmap <leader>r :source ~/.vimrc<enter> :echo "Config reloaded"<enter>
+nmap <leader>c :noh<enter>
+nmap <leader>s :set spell!<enter>
+nmap <leader>e :lopen<enter>
+nmap <leader>q :lclose<enter>
+nmap <leader>f :ALEFix<enter>
+>>>>>>> b506a2003442382e45debe5ba2124166b406965e
 
 " Switch vim windows
 " map <C-j> <Esc><C-W>j
@@ -84,10 +102,30 @@ nmap <silent><Tab> :bnext<enter>
 nmap <silent><S-Tab> :bprev<enter>
 
 " Flip through the location and quickfix lists
+<<<<<<< HEAD
 nmap <silent>]l :lnext<enter>
 nmap <silent>[l :lprev<enter>
 nmap <silent>]c :cnext<enter>
 nmap <silent>[c :cprev<enter>
+=======
+nmap ]l :lnext<enter>
+nmap [l :lprev<enter>
+nmap ]c :cnext<enter>
+nmap [c :cprev<enter>
+nmap ]e <Plug>(ale_next_wrap)
+nmap [e <Plug>(ale_previous_wrap)
+
+" Terminal mode
+if has("nvim")
+	if has("windows")
+		nmap \t :vsplit term://powershell<enter>
+	else
+		nmap \t :vsplit term://bash<enter>
+	endif
+
+	tnoremap <Esc> <C-\><C-n>
+endif
+>>>>>>> b506a2003442382e45debe5ba2124166b406965e
 " }}}
 " Commands {{{
 command! Todo :vimgrep /TODO: @rray/ **/*.*<enter>

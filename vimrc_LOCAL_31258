@@ -24,6 +24,7 @@ Plug 'w0rp/ale'
 Plug 'maximbaz/lightline-ale'
 Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-dispatch'
+Plug 'airblade/vim-gitgutter'
 " Plug 'zivyangll/git-blame.vim'
 
 " if v:version >= 703

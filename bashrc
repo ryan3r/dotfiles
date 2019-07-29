@@ -66,13 +66,27 @@ if [ "$color_prompt" = yes ]; then
 
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
+			# Git ahead and behind status 
+			local behindBy=""
+			case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
+				ahead)
+					behindBy="+"
+					;;
+				behind)
+					behindBy="-"
+					;;
+				diverged)
+					behindBy="*"
+					;;
+			esac
+
 			local status="$(git status --porcelain)"
 			if [ -z "$status" ]; then
 				PS1="$PS1\[\033[1;32m\]"
 			else
 				PS1="$PS1\[\033[1;33m\]"
 			fi
-			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null))\[\033[0m\] "
+			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null)$behindBy)\[\033[0m\] "
 		fi
 
 		# Show only 1 dirs
@@ -85,43 +99,8 @@ if [ "$color_prompt" = yes ]; then
 	}
 
 	fancy_prompt() {
-		PS1=""
-		local sep="$(echo -e "\ue0b0")"
-		local prebranch=""
-
-		# Show running jobs
-		local dockerJobs="$(docker ps -q 2>/dev/null)"
-		local hasVim="$(jobs | fgrep "vim")"
-		if [ ! -z "$hasVim" ] || [ ! -z "$dockerJobs" ]; then
-			PS1="\[\033[0;43m\]"
-
-			if [ ! -z "$dockerJobs" ]; then
-				PS1="$PS1 $(echo -e "\uf308")"
-			fi
-
-			if [ ! -z "$hasVim" ]; then
-				PS1="$PS1 $(echo -e "\ue7c5")"
-			fi
-
-			PS1="$PS1 "
-			prebranch="\[\033[033m\]$sep"
-		fi
-
 		# Show git info in the prompt
 		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
-			# Git ahead and behind status 
-			local behindBy=""
-			case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
-				ahead)
-					behindBy="+$behindBy"
-					;;
-				behind)
-					behindBy="-$behindBy"
-					;;
-				diverged)
-					behindBy="*$behindBy"
-					;;
-			esac
 			
 			local status="$(git status --porcelain)"
 			local foreground=
@@ -133,7 +112,7 @@ if [ "$color_prompt" = yes ]; then
 				foreground="\[\033[0;93m\]"
 			fi
 			local branch="$(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null)"
-			PS1="$PS1 $(echo -e "\ue0a0")$branch$behindBy $foreground\[\033[104m\]$sep"
+			PS1="$PS1$branch$behindBy $foreground"
 		else
 			PS1="$PS1\[\033[48;5;237m\]$prebranch\[\033[37m\]\[\033[1;48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
 		fi
