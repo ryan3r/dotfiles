@@ -1,8 +1,0 @@
-#!/bin/bash
-
-case "$1" in 
-	conky)
-		killall conky
-		conky &
-		;;
-esac

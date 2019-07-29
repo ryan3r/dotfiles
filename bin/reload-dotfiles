@@ -1,6 +1,0 @@
-#!/bin/bash
-source ~/.bashrc
-
-if [ ! -z "$TMUX" ]; then
-	tmux source-file ~/.tmux.conf
-fi

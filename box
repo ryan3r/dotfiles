@@ -1,38 +1,43 @@
 #!/bin/bash
 
 box() {
-	TOP_LEFT="\033(0l\033(B"
-	TOP_RIGHT="\033(0k\033(B"
-	BOTTOM_LEFT="\033(0m\033(B"
-	BOTTOM_RIGHT="\033(0j\033(B"
-	VERT_LINE="\033(0x\033(B"
-	HORIZ_LINE="\033(0q\033(B"
+	# Constants for the box lines
+	local TOP_LEFT="\033(0l\033(B"
+	local TOP_RIGHT="\033(0k\033(B"
+	local BOTTOM_LEFT="\033(0m\033(B"
+	local BOTTOM_RIGHT="\033(0j\033(B"
+	local VERT_LINE="\033(0x\033(B"
+	local HORIZ_LINE="\033(0q\033(B"
 
-	max_width=0
+	local max_width=0
 
 	# Find the longest line
 	for (( i=0; i < ${#box_lines[@]}; i=i+1 )); do
-		width=${#box_lines[i]}
+		local width=${#box_lines[i]}
 		if [ $width -gt $max_width ]; then
 			max_width=$width
 		fi
 	done
 
+	# Print n of a character
 	printn() {
 		for (( i=0; i < $1; i=i+1 )); do
 			echo -en "$2"
 		done
 	}
 
-	box_width=$((max_width + 2))
+	local box_width=$((max_width + 2))
 
-	[ -z "$COLUMNS" ] || prefix="$(printn $(((COLUMNS - box_width - 2) / 2)) " ")"
+	# Center the box
+	[ -z "$COLUMNS" ] || local prefix="$(printn $(((COLUMNS - box_width - 2) / 2)) " ")"
 
+	# Print the top
 	echo -e "$prefix$TOP_LEFT$(printn $box_width "$HORIZ_LINE")$TOP_RIGHT"
 
+	# Print the contents
 	for (( i=0; i < ${#box_lines[@]}; i=i+1 )); do
 		width=${#box_lines[i]}
-		space_around=$(((box_width - width) / 2))
+		local space_around=$(((box_width - width) / 2))
 
 		echo -en "$prefix$VERT_LINE$(printn $space_around " ")"
 		echo -en ${box_lines[i]}
@@ -45,5 +50,7 @@ box() {
 		echo -e "$VERT_LINE"
 	done
 
+	# Print the bottom
 	echo -e "$prefix$BOTTOM_LEFT$(printn $box_width "$HORIZ_LINE")$BOTTOM_RIGHT"
+	unset printn
 }

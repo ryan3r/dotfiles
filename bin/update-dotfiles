@@ -1,7 +1,0 @@
-#!/bin/bash
-
-rm -rf ~/.local/share/nvim ~/.config/nvim
-
-cd ~/dotfiles
-git pull
-bin/dotfiles install

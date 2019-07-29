@@ -1,4 +1,3 @@
-" vim: set foldlevel=0:
 set nocompatible
 
 " Plug config{{{
