@@ -89,53 +89,31 @@ if [ "$color_prompt" = yes ]; then
 			PS1="$PS1($(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null)$behindBy)\[\033[0m\] "
 		fi
 
-		# Show only 1 dirs
-		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")"
-		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 2 ]; then
-			cwd="$(echo $cwd | awk -F/ '{print $NF}')"
-		fi
-
-		PS1="$PS1${debian_chroot:+($debian_chroot)}\[\033[00;32m\]\h\[\033[00m\]:\[\033[01;34m\]$cwd\[\033[00m\]$ "
-	}
-
-	fancy_prompt() {
-		# Show git info in the prompt
-		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
-			
-			local status="$(git status --porcelain)"
-			local foreground=
-			if [ -z "$status" ]; then
-				PS1="$PS1\[\033[42m\]$prebranch\[\033[0;37m\]\[\033[1;42m\]"
-				foreground="\[\033[0;32m\]"
-			else
-				PS1="$PS1\[\033[103m\]$prebranch\[\033[0;103m\]\[\033[30m\]"
-				foreground="\[\033[0;93m\]"
-			fi
-			local branch="$(git rev-parse --symbolic-full-name -q --abbrev-ref HEAD 2>/dev/null)"
-			PS1="$PS1$branch$behindBy $foreground"
-		else
-			PS1="$PS1\[\033[48;5;237m\]$prebranch\[\033[37m\]\[\033[1;48;5;237m\] \h \[\033[38;5;237m\]\[\033[104m\]$sep"
-		fi
-
 		# Show only 2 dirs
-		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/"| awk -F/ '{print $NF}')"
-	
-		PS1="$PS1\[\033[1;39m\] $cwd \[\033[00m\]\[\033[94m\]$sep\[\033[00m\] "
-	}
-
-	prompt_picker() {
-		# Set the prompt title
-		local cwd="$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")"
-		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 3 ]; then
+		local cwd=$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")
+		if [ $(echo $cwd | awk -F/ '{print NF}') -gt 2 ]; then
 			cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
 		fi
+ 
+		local path_color="\033[01;34m"
+		local prompt_char="$"
 
-		echo -en "\033]0;$(whoami)@$(hostname): $cwd\a"
+		# Special root prompt
+		if [ $EUID -eq 0 ]; then
+			prompt_char="#"
+			path_color="\033[0;91m"
+		fi
 
-		custom_prompt
+		# Show not ryan/root usernames
+		local hostname="\h"
+		if [ $EUID -ne 0 ] && [ "$USER" != "ryan" ]; then
+			hostname="\u@\h"
+		fi
+
+		PS1="$PS1\[\033[00;32m\]$username\h\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
 	}
 
-	PROMPT_COMMAND=prompt_picker
+	PROMPT_COMMAND=custom_prompt
 else
    	PS1='${debian_chroot:+($debian_chroot)}\h:\w> '
 fi
@@ -161,6 +139,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 
 alias iavpn="/opt/cisco/anyconnect/bin/vpn"
+alias sudo="sudo -E"
 
 # Local alias definitions.
 if [ -f ~/.bash_aliases ]; then
