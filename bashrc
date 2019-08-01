@@ -101,7 +101,7 @@ if [ "$color_prompt" = yes ]; then
 		# Special root prompt
 		if [ $EUID -eq 0 ]; then
 			prompt_char="#"
-			path_color="\033[0;91m"
+			path_color="\033[0;35m"
 		fi
 
 		# Show not ryan/root usernames
