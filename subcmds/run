@@ -1,0 +1,4 @@
+#!/bin/bash
+# Run a container with the dotfiles mapped in
+docker run -it -v ~/dotfiles:/root/dotfiles -w /root --name rray-dotfiles-build $* sh -c 'dotfiles/bin/dotfiles install'
+docker commit 

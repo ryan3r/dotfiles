@@ -57,6 +57,8 @@ set complete+=.,w,b,t,i,u,kspell
 set ttymouse=xterm2
 set mouse=a
 set autowrite
+" Warn when we pass 80 chars
+set colorcolumn=81
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
@@ -104,6 +106,7 @@ endif
 autocmd FileType vim setlocal foldmethod=marker
 autocmd FileType sh setlocal foldmethod=marker
 autocmd FileType tmux setlocal foldmethod=marker
+autocmd FileType gitcommit setlocal spell
 
 " Based on https://stackoverflow.com/questions/26962999/wrong-indentation-when-editing-yaml-in-vim
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab

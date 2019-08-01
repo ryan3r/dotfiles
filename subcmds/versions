@@ -124,24 +124,5 @@ if has_cmd docker; then
 		echo -n " [compose]"
 	fi
 
-	if [ "$EUID" != "0" ] && ! id | fgrep docker >/dev/null; then
-		echo -n " (no access)"
-	fi
-
 	echo
-fi
-
-# Check if we have sudo
-if has_cmd sudo; then
-	status="$(sudo -nv 2>&1)"
-
-	if [ -z "$status" ]; then
-		echo "Sudo allowed"
-	elif echo $status | fgrep "may not run sudo" >/dev/null; then
-		echo "Sudo denied"
-	elif echo $status | fgrep "password is required" >/dev/null; then
-		echo "Sudo allowed (password)"
-	else
-		echo "Sudo unknown"
-	fi
 fi

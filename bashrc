@@ -20,7 +20,7 @@ command -v nvim >/dev/null && {
 [ -f ~/bin/nvim ] && export EDITOR="~/bin/nvim"
 
 # Allow **
-[ -z "$IS_MAC" ] && shopt -s globstar
+$PLATFORM_MAC || shopt -s globstar
 # }}}
 # Stop if we are not running interactivly {{{
 case $- in
@@ -110,7 +110,7 @@ if [ "$color_prompt" = yes ]; then
 			hostname="\u@\h"
 		fi
 
-		PS1="$PS1\[\033[00;32m\]$username\h\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
+		PS1="$PS1\[\033[00;32m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
 	}
 
 	PROMPT_COMMAND=custom_prompt
@@ -188,7 +188,7 @@ if shopt -q login_shell; then
 	fi
 
 	# Get the number of updates available
-	if has_cmd apt; then
+	if has_cmd apt && ! $PLATFORM_MAC; then
 		updates=$(($(apt list --upgradable 2>/dev/null | wc -l) -1))
 		[ "$updates" == "0" ] && updates=""
 	fi
@@ -223,8 +223,20 @@ if shopt -q login_shell; then
 	[ -z "$updates" ] || box_lines+=("$updates Updates")
 	[ -z "$tmux_sessions" ] || box_lines+=("$tmux_sessions")
 
+	# Show the versions of all of our apps
+	while IFS="" read line; do
+		box_lines+=("$line")
+	done < <(dotfiles versions)
+
 	box
 
 	unset box_lines box sudo_status dot_version
+fi
+# }}}
+# Refresh dotfiles {{{
+if has_cmd git && [ -d ~/dotfiles/.git ]; then
+	pushd dotfiles >/dev/null
+	(git fetch >/dev/null 2>&1 &)
+	popd >/dev/null
 fi
 # }}}
