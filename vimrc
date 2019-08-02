@@ -51,12 +51,10 @@ set foldlevel=3
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
-" set modeline
 set nomodeline
 set complete+=.,w,b,t,i,u,kspell
 set ttymouse=xterm2
 set mouse=a
-set autowrite
 " Warn when we pass 80 chars
 set colorcolumn=81
 

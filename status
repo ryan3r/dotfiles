@@ -4,19 +4,10 @@
 rootfs="$(df -H / | tail -1 | awk '{print $3 "/" $2}')"
 command -v docker >/dev/null && containers="$(docker ps -q 2>/dev/null | wcl)"
 
-users=0
-$PLATFORM_MAC || users="$(($(who | awk '{print $1}' | sort | uniq | wc -l) - 1))"
-
 if [ "$containers" == "0" ] || [ -z "$containers" ]; then
 	containers=
 else
 	containers="$containers ctr | "
 fi 
 
-if [ "$users" == "0" ]; then
-	users=
-else
-	users="$users users | "
-fi 
-
-echo "$users$containers$rootfs"
+echo "$users$rootfs"

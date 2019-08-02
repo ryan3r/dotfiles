@@ -235,7 +235,7 @@ fi
 # }}}
 # Refresh dotfiles {{{
 if has_cmd git && [ -d ~/dotfiles/.git ]; then
-	pushd dotfiles >/dev/null
+	pushd ~/dotfiles >/dev/null
 	(git fetch >/dev/null 2>&1 &)
 	popd >/dev/null
 fi
