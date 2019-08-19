@@ -101,13 +101,12 @@ if [ "$color_prompt" = yes ]; then
 		# Special root prompt
 		if [ $EUID -eq 0 ]; then
 			prompt_char="#"
-			path_color="\033[0;35m"
 		fi
 
 		# Show not ryan/root usernames
-		local hostname="\h"
-		if [ $EUID -ne 0 ] && [ "$USER" != "ryan" ]; then
-			hostname="\u@\h"
+		local hostname="$(cat /etc/hostname)"
+		if [ "$USER" != "ryan" ]; then
+			hostname="\u@$hostname"
 		fi
 
 		PS1="$PS1\[\033[00;32m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
@@ -231,12 +230,5 @@ if shopt -q login_shell; then
 	box
 
 	unset box_lines box sudo_status dot_version
-fi
-# }}}
-# Refresh dotfiles {{{
-if has_cmd git && [ -d ~/dotfiles/.git ]; then
-	pushd ~/dotfiles >/dev/null
-	(git fetch >/dev/null 2>&1 &)
-	popd >/dev/null
 fi
 # }}}

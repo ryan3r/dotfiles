@@ -25,6 +25,8 @@ Plug 'maximbaz/lightline-ale'
 Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-dispatch'
 " Plug 'zivyangll/git-blame.vim'
+Plug 'rust-lang/rust.vim'
+Plug 'cmcaine/vim-uci'
 
 " if v:version >= 703
 	" let g:signify_realtime=1
@@ -101,18 +103,24 @@ if !empty(globpath(&rtp, 'colors/palenight.vim'))
 endif
 "}}}
 " Autocommands{{{
-autocmd FileType vim setlocal foldmethod=marker
-autocmd FileType sh setlocal foldmethod=marker
-autocmd FileType tmux setlocal foldmethod=marker
+" Fold config files
+autocmd FileType vim setlocal foldmethod=marker foldlevel=0
+autocmd FileType sh setlocal foldmethod=marker foldlevel=0
+autocmd FileType tmux setlocal foldmethod=marker foldlevel=0
+
+" Show spelling errors in commits
 autocmd FileType gitcommit setlocal spell
 
 " Based on https://stackoverflow.com/questions/26962999/wrong-indentation-when-editing-yaml-in-vim
 autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
 autocmd FileType py setlocal expandtab smarttab
 
-autocmd FocusGained * set relativenumber
-autocmd FocusLost * set norelativenumber
-autocmd FocusLost * silent! w
+" Toggle relative line number based on focus
+autocmd FocusGained * set relativenumber number
+autocmd FocusLost * set norelativenumber number
+
+" Reload vim on save
+autocmd! BufWritePost vimrc source ~/.vimrc
 
 if has("nvim")
 	autocmd TermOpen * setlocal relativenumber! number!
