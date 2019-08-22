@@ -164,44 +164,12 @@ fi
 . dotfiles bash-completion
 # }}}
 # Print the banner {{{
-if [ -z "$COLUMNS" ] && has_cmd tput; then
-	COLUMNS=$(tput cols)
-fi
-
 if shopt -q login_shell; then
-	# Check if we have sudo
-	if command -v sudo >/dev/null; then
-		status="$(sudo -nv 2>&1)"
-
-		if [ -z "$status" ]; then
-			sudo_status="Sudo allowed"
-		elif echo $status | fgrep "may not run sudo" >/dev/null; then
-			sudo_status="Sudo denied"
-		elif echo $status | fgrep "password is required" >/dev/null; then
-			sudo_status="Sudo allowed (password)"
-		else
-			sudo_status="Sudo unknown"
-		fi
-
-		unset status
-	fi
-
 	# Get the number of updates available
 	if has_cmd apt && ! $PLATFORM_MAC; then
 		updates=$(($(apt list --upgradable 2>/dev/null | wc -l) -1))
-		[ "$updates" == "0" ] && updates=""
-	fi
-
-	# Check the version of our dotfiles
-	if has_cmd git; then
-		pushd ~/dotfiles >/dev/null
-		sha=$(git log -1 --format=%h)
-		dot_status="$(git status --porcelain)"
-		[ -z "$dot_status" ] || dot_status="+"
-		popd >/dev/null
-
-		dot_version=" $sha$dot_status"
-		unset sha dot_status 
+		[ "$updates" != "0" ] && echo "$updates Updates"
+		unset updates
 	fi
 
 	# List the tmux sessions we have open
@@ -210,25 +178,10 @@ if shopt -q login_shell; then
 		# Strip the tailing ,
 		if [ ! -z "$tmux_sessions" ]; then
 			tmux_sessions=${tmux_sessions:0:$((${#tmux_sessions} - 1))}
-			tmux_sessions="Tmux - $(echo $tmux_sessions | sed 's/,/, /g')"
+			echo "Tmux: $(echo $tmux_sessions | sed 's/,/, /g')"
 		fi
+		unset tmux_sessions
 	fi
 
-	# Display some information
-	source ~/dotfiles/box
-
-	box_lines=("Dotfiles$dot_version")
-	[ -z "$sudo_status" ] || box_lines+=("$sudo_status")
-	[ -z "$updates" ] || box_lines+=("$updates Updates")
-	[ -z "$tmux_sessions" ] || box_lines+=("$tmux_sessions")
-
-	# Show the versions of all of our apps
-	while IFS="" read line; do
-		box_lines+=("$line")
-	done < <(dotfiles versions)
-
-	box
-
-	unset box_lines box sudo_status dot_version
 fi
 # }}}
