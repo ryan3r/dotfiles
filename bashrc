@@ -165,13 +165,6 @@ fi
 # }}}
 # Print the banner {{{
 if shopt -q login_shell; then
-	# Get the number of updates available
-	if has_cmd apt && ! $PLATFORM_MAC; then
-		updates=$(($(apt list --upgradable 2>/dev/null | wc -l) -1))
-		[ "$updates" != "0" ] && echo "$updates Updates"
-		unset updates
-	fi
-
 	# List the tmux sessions we have open
 	if has_cmd tmux; then
 		tmux_sessions=$(tmux list-sessions -F "#S" 2>/dev/null | tr '\n' ',')
