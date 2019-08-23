@@ -166,7 +166,7 @@ fi
 # Print the banner {{{
 if shopt -q login_shell; then
 	# List the tmux sessions we have open
-	if has_cmd tmux; then
+	if has_cmd tmux && [ -z "$TMUX" ]; then
 		tmux_sessions=$(tmux list-sessions -F "#S" 2>/dev/null | tr '\n' ',')
 		# Strip the tailing ,
 		if [ ! -z "$tmux_sessions" ]; then
