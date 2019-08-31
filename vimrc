@@ -107,6 +107,7 @@ endif
 autocmd FileType vim setlocal foldmethod=marker foldlevel=0
 autocmd FileType sh setlocal foldmethod=marker foldlevel=0
 autocmd FileType tmux setlocal foldmethod=marker foldlevel=0
+autocmd FileType markdown setlocal spell
 
 " Show spelling errors in commits
 autocmd FileType gitcommit setlocal spell
