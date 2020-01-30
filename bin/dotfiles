@@ -4,7 +4,6 @@
 
 run_installers() {
 	cd ~/dotfiles
-	mkdir -p ~/bin ~/tools/libs
 	chmod +x install/*
 	total="$(ls -1 install | wcl)"
 	i=0
