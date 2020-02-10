@@ -51,7 +51,7 @@ set complete+=kspell
 set backspace=2
 let NERDTreeShowHidden=1
 set foldmethod=syntax
-set foldlevel=3
+set foldlevel=1000
 set laststatus=2
 set wildignore=*.o,*.pyc,*.class,*.jar,*.exe,*.a,*.dll,*.so,*/node_modules/*,*.swp,*.docx
 set conceallevel=2
@@ -76,6 +76,7 @@ nmap <silent><leader>s :set spell!<enter>
 nmap <silent><leader>e :lopen<enter>
 nmap <silent><leader>q :lclose<enter>
 nmap <silent><leader>n :set relativenumber!<enter>
+nmap <silent><leader>o 0dW
 
 " Switch vim windows
 " map <C-j> <Esc><C-W>j
