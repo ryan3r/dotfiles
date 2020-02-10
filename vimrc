@@ -27,6 +27,8 @@ Plug 'tpope/vim-dispatch'
 " Plug 'zivyangll/git-blame.vim'
 Plug 'rust-lang/rust.vim'
 Plug 'cmcaine/vim-uci'
+Plug 'mhinz/vim-startify'
+
 
 " if v:version >= 703
 	" let g:signify_realtime=1
@@ -120,9 +122,6 @@ autocmd FileType py setlocal expandtab smarttab
 autocmd FocusGained * set relativenumber number
 autocmd FocusLost * set norelativenumber number
 
-" Reload vim on save
-autocmd! BufWritePost vimrc source ~/.vimrc
-
 if has("nvim")
 	autocmd TermOpen * setlocal relativenumber! number!
 endif
@@ -196,6 +195,13 @@ function! LightLineBlame()
 		return blame['author']
 	endif
 endfunction
+" }}}
+" Startify config{{{
+let g:startify_bookmarks = [ {'v': '~/dotfiles/vimrc'}, {'s': '~/.bashrc' } ]
+let g:startify_change_to_dir = 1
+let g:startify_change_to_vcs_root = 1
+let g:startify_custom_header = 'startify#pad(readfile($HOME."/dotfiles/header"))'
+let g:startify_skiplist = [ 'COMMIT_EDITMSG' ]
 " }}}
 " GUI specific options{{{
 if has("gui_running")
