@@ -109,7 +109,11 @@ if [ "$color_prompt" = yes ]; then
 			hostname="\u@$hostname"
 		fi
 
-		PS1="$PS1\[\033[00;32m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
+		# Show venv name
+		local venv=""
+		[ -z "$VIRTUAL_ENV" ] || venv="\[\033[00;36m\][$(basename $VIRTUAL_ENV)]\[\033[00m\] "
+
+		PS1="$venv$PS1\[\033[00;32m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
 	}
 
 	PROMPT_COMMAND=custom_prompt
