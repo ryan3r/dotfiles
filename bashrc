@@ -65,7 +65,9 @@ if [ "$color_prompt" = yes ]; then
 		fi
 
 		# Show git info in the prompt
-		if [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
+		if [[ "$(pwd)" == *"/gvfs/"* ]] || !command -v git 2>/dev/null; then
+			PS1="$PS1\[\033[1;31m\](X)\[\033[1;0m\] "
+		elif [ ! -z "$(git rev-parse --git-dir 2>/dev/null)" ]; then
 			# Git ahead and behind status 
 			local behindBy=""
 			case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
@@ -143,6 +145,12 @@ alias la='ls -A'
 
 alias iavpn="/opt/cisco/anyconnect/bin/vpn"
 alias sudo="sudo -E"
+alias mosh="mosh --predict=never"
+
+# Alias lsd to ls if available
+if command -v lsd >/dev/null; then
+	alias ls='lsd'
+fi
 
 # Local alias definitions.
 if [ -f ~/.bash_aliases ]; then
