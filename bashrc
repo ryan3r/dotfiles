@@ -177,6 +177,14 @@ fi
 # }}}
 # Print the banner {{{
 if shopt -q login_shell; then
+	if has_cmd figlet; then
+		hname=$(hostname)
+		font="standard"
+		[ -f /usr/share/figlet/ogre.flf ] && font="ogre"
+		figlet -f $font ${hname^}
+		unset hname font
+	fi
+
 	# List the tmux sessions we have open
 	if has_cmd tmux && [ -z "$TMUX" ]; then
 		tmux_sessions=$(tmux list-sessions -F "#S" 2>/dev/null | tr '\n' ',')
@@ -187,6 +195,5 @@ if shopt -q login_shell; then
 		fi
 		unset tmux_sessions
 	fi
-
 fi
 # }}}
