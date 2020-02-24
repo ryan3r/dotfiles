@@ -147,6 +147,12 @@ alias iavpn="/opt/cisco/anyconnect/bin/vpn"
 alias sudo="sudo -E"
 alias mosh="mosh --predict=never"
 
+# Tmux aliases
+alias ta="tmux attach"
+alias tae="tmux attach && exit"
+alias ts="tmux new -s"
+alias tse="exec tmux new -s"
+
 # Alias lsd to ls if available
 if command -v lsd >/dev/null; then
 	alias ls='lsd'
