@@ -144,7 +144,7 @@ alias ll='ls -alF'
 alias la='ls -A'
 
 alias iavpn="/opt/cisco/anyconnect/bin/vpn"
-alias sudo="sudo -E"
+#alias sudo="sudo -E"
 alias mosh="mosh --predict=never"
 
 # Tmux aliases
