@@ -57,7 +57,7 @@ fi
 
 if [ "$color_prompt" = yes ]; then
 	custom_prompt() {
-		PS1=""
+		PS1="$R3_PREFIX"
 
 		# Show running jobs
 		if [ $(jobs | wc -l) -gt 0 ]; then
