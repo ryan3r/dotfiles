@@ -61,6 +61,8 @@ set ttymouse=xterm2
 set mouse=a
 " Warn when we pass 80 chars
 set colorcolumn=81
+" Set the terminal title
+set title
 
 let g:ctrlp_custom_ignore = '\v[\/]\.(git|hg|svn)$'
 let g:ctrlp_show_hidden = 1
