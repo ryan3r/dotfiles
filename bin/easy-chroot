@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Elevate to root
+if [ "$EUID" != "0" ]; then
+	exec sudo $0 $*
+fi
+
+die() {
+	echo $*
+	exit 1
+}
+
+help() {
+	cat <<"EOF"
+Usage: easy-chroot <folder|device>
+
+  -b, --boot		The device to mount to /boot inside the chroot
+EOF
+	exit
+}
+
+# Parse arguments
+while [ -n "$1" ]; do
+	case "$1" in
+		-b|--boot)
+			boot="$2"
+			shift
+			;;
+
+		*)
+			[ -n "$root" ] && die "Only one root can be specified"
+			root="$1"
+			;;
+	esac
+
+	shift
+done
+
+# Root fs required
+[ -z "$root" ] && help
+
+# If root is a block device mount it
+root_mounted=0
+
+if [ -b "$root" ]; then
+	tmp=$(mktemp -d)
+	mount $root $tmp
+	root=$tmp
+	root_mounted=1
+fi
+
+# Mount /boot if given
+if [ -n "$boot" ]; then
+	mkdir -p $root/boot
+	mount $boot $root/boot
+fi
+
+# Mount kernel fs
+mkdir -p $root/{sys,proc,dev}
+mount -t sysfs sys $root/sys
+mount -t proc proc $root/proc
+mount --bind /dev $root/dev
+
+# Find a shell and chroot into it
+for shell in /bin/bash /bin/ash /bin/sh; do
+	if [ -x $shell ]; then
+		chroot $root
+		exit_status=$?
+		break
+	fi
+done
+
+# Unmount kernel fs
+umount $root/{sys,proc,dev}
+
+# Unmount boot if we mounted it
+if [ -n "$boot" ]; then
+	umount $root/boot
+fi
+
+# Unmount root if we mounted it
+if [ "$root_mounted" == "1" ]; then
+	umount $root
+	rmdir $root
+fi
+
+exit $exit_status
