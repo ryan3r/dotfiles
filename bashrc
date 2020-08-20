@@ -152,6 +152,9 @@ alias tae="tmux attach && exit"
 alias ts="tmux new -s"
 alias tse="exec tmux new -s"
 
+# Reset the sudo timeout everytime we call sudo
+alias sudo='sudo -v; sudo '
+
 # Alias lsd to ls if available
 if command -v lsd >/dev/null; then
 	alias ls='lsd'
