@@ -116,10 +116,10 @@ custom_prompt() {
 
 	echo -ne "\033]0;$term_title\007"
 
-	local hostname_color="32"
+	local hostname_color="00;32"
 	[ -f ~/.hostname_color ] && hostname_color="$(cat ~/.hostname_color)"
 
-	PS1="$venv$PS1\[\033[00;${hostname_color}m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
+	PS1="$venv$PS1\[\033[${hostname_color}m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
 }
 
 PROMPT_COMMAND=custom_prompt
