@@ -107,7 +107,7 @@ custom_prompt() {
 		term_title="$R3_PREFIX"
 
 		# If we are on the same host as tmux skip the hostname
-		if [ "$(tmux display-message -p "#H")" != "$(hostname)" ]; then
+		if [ "$(tmux display-message -p "#H" 2>/dev/null)" != "$(hostname)" ]; then
 			term_title="$term_title$(hostname): "
 		fi
 
