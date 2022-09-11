@@ -1,39 +1,46 @@
 set nocompatible
 
-" Plug config{{{
-call plug#begin('$HOME/.vim/plugged/')
+" Dotfiles config {{{
+" Find the dotfiles dir
+" Ref: https://stackoverflow.com/questions/4976776/how-to-get-path-to-the-current-vimscript-being-executed
+let s:dotfiles_path = fnamemodify(resolve(expand('<sfile>:p')), ':h')
 
+if empty(matchstr(s:dotfiles_path, '^\(/root\|/home\)'))
+	let s:vim_dir = '/etc/vim'
+else 
+    let s:vim_dir = expand('~/.vim')
+endif
+" }}}
+" Plug config{{{
+if s:vim_dir != '/etc/vim'
+	let s:vim_dir = expand('~/.vim')
+endif
+
+" Alpine doesn't seem to autoload
+let s:plug_path = '/etc/vim/autoload/plug.vim'
+if filereadable(s:plug_path)
+	execute 'source ' . s:plug_path
+endif
+
+call plug#begin(s:vim_dir . '/plugged/')
+
+Plug 'mhinz/vim-startify'
 Plug 'scrooloose/nerdtree'
 Plug 'easymotion/vim-easymotion'
 Plug 'scrooloose/nerdcommenter'
 Plug 'drewtempelmeyer/palenight.vim'
 Plug 'itchyny/lightline.vim'
-" Plug 'fatih/vim-go'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-commentary'
 Plug 'ctrlpvim/ctrlp.vim'
 Plug 'sgur/vim-editorconfig'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-rhubarb'
-Plug 'tmux-plugins/vim-tmux'
-Plug 'tmux-plugins/vim-tmux-focus-events'
-Plug 'roxma/vim-tmux-clipboard'
 Plug 'godlygeek/tabular'
 Plug 'plasticboy/vim-markdown'
 Plug 'w0rp/ale'
 Plug 'maximbaz/lightline-ale'
 Plug 'pangloss/vim-javascript'
 Plug 'tpope/vim-dispatch'
-" Plug 'zivyangll/git-blame.vim'
-Plug 'rust-lang/rust.vim'
-Plug 'cmcaine/vim-uci'
-Plug 'mhinz/vim-startify'
-
-
-" if v:version >= 703
-	" let g:signify_realtime=1
-	" Plug 'mhinz/vim-signify'
-" endif
 
 call plug#end()
 
@@ -200,10 +207,17 @@ function! LightLineBlame()
 endfunction
 " }}}
 " Startify config{{{
-let g:startify_bookmarks = [ {'v': '~/dotfiles/vimrc'}, {'s': '~/.bashrc' } ]
+
+let g:startify_bookmarks = [
+			\ { 'v': s:dotfiles_path . '/vimrc'},
+			\ { 'b': s:dotfiles_path . '/bashrc' },
+			\ { 't': s:dotfiles_path . '/tmux.conf' },
+			\ { 'i': s:dotfiles_path . '/install.sh' }
+			\]
+
 let g:startify_change_to_dir = 1
 let g:startify_change_to_vcs_root = 1
-let g:startify_custom_header = 'startify#pad(readfile($HOME."/dotfiles/header"))'
+let g:startify_custom_header = 'startify#pad(readfile("' . s:dotfiles_path . '/header"))'
 let g:startify_skiplist = [ 'COMMIT_EDITMSG' ]
 " }}}
 " GUI specific options{{{

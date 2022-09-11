@@ -1,4 +1,6 @@
-# My global git ignore
+########################################
+# Global gitignore                     #
+########################################
 
 # Vim
 *.swp
@@ -11,6 +13,7 @@
 *.o
 *.so
 *.jar
+__pycache__
 
 # Ignore log files
 *.log
@@ -19,7 +22,5 @@
 node_modules
 
 # Ignore archives
-*.jar
 *.zip
-*.tar.gz
-*.tar.bz
+*.tar.*
