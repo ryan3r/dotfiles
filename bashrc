@@ -9,19 +9,21 @@ command -v nvim >/dev/null && {
 }
 
 [ -f ~/bin/nvim ] && export EDITOR="~/bin/nvim"
+
+[ -z "$MAIN_USER" ] && export MAIN_USER="ryan"
 # }}}
 # Stop if we are not running interactivly {{{
-case $- in
-    *i*) ;;
-      *) return;;
-esac
+[[ "$-" == *i* ]] || return
 # }}} 
 # Color cli apps {{{
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
-alias ip='ip -c'
+# Busybox doesn't support color options
+if [ ! -L "$(command -v ls)" ]; then
+	alias ls='ls --color=auto'
+	alias grep='grep --color=auto'
+	alias fgrep='fgrep --color=auto'
+	alias egrep='egrep --color=auto'
+	alias ip='ip -c'
+fi
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
@@ -68,6 +70,7 @@ alias l1='git log -1'
 alias gs='git status'
 alias gd='git diff'
 alias gdf='git diff $(_fork_point)..'
+alias ga='git add .'
 alias wtl='git worktree list'
 alias wtr='git worktree remove'
 alias cm='git commit'
@@ -153,7 +156,7 @@ less_pretty_prompt() {
 		cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
 	fi
 
-	local path_color="\033[01;34m"
+	local path_color="\033[01;35m"
 	local prompt_char="$"
 
 	# Special root prompt
@@ -165,28 +168,34 @@ less_pretty_prompt() {
 	# Don't show hostname in containers (it doesn't matter
 	if [ ! -f /.dockerenv ]; then
 		hostname="$HOSTNAME"
+		path_color="\033[01;34m"
 	fi
 
-	# Show not ryan/root usernames
-	if [ "$USER" != "ryan" ]; then
+	# Hide the ryan username
+	local user="$(whoami)"
+	if [ "$user" != "$MAIN_USER" ]; then
 		if [ -n "$hostname" ]; then
-			hostname="$(whoami)@$hostname"
+			hostname="$user@$hostname"
 		else
-			hostname="$(whoami)"
+			hostname="$user"
 		fi
 	fi
 
 	local hostname_color="00;32"
 	[ -f ~/.hostname_color ] && hostname_color="$(cat ~/.hostname_color)"
 
-	echo -ne "$prompt_prefix\[\033[${hostname_color}m\]$hostname\[\033[00m\]:\[$path_color\]$cwd\[\033[00m\]$prompt_char "
+	if [ -n "$hostname" ]; then
+		hostname="\[\033[${hostname_color}m\]$hostname\[\033[00m\]:"
+	fi
+
+	echo -ne "$prompt_prefix\[$path_color\]$hostname\[$path_color\]$cwd\[\033[00m\]$prompt_char "
 }
 
 custom_prompt() {
 	local slow_msg="\[\e[31m\][S]\[\e[0m\] "
 	if command -v timeout >/dev/null; then
 		# Git commands can be slow on certain remote fs's don't hold up our prompt
-		PS1="$(timeout --foreground 0.1 bash -c "$(declare -pf pretty_custom_prompt); $(declare -pf less_pretty_prompt); pretty_custom_prompt" || less_pretty_prompt "$slow_msg")"
+		PS1="$(timeout 0.1 bash -c "$(declare -pf pretty_custom_prompt); $(declare -pf less_pretty_prompt); pretty_custom_prompt" || less_pretty_prompt "$slow_msg")"
 	else
 		PS1="$(pretty_custom_prompt)"
 	fi

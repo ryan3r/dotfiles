@@ -61,7 +61,13 @@ if ! $PLATFORM_MAC; then
 	fgrep OpenWrt /proc/version && PLATFORM_OPENWRT=true
 fi
 
-export PLATFORM_MAC PLATFORM_PKG PLATFORM_OPENWRT
+PLATFORM_ARCH="$(uname -m)"
+case "$PLATFORM_ARCH" in
+	x86_64) PLATFORM_ARCH="amd64" ;;
+	x86) PLATFORM_ARCH="i386" ;;
+esac
+
+export PLATFORM_MAC PLATFORM_PKG PLATFORM_OPENWRT PLATFORM_ARCH
 
 print_platform() {
 	echo "PLATFORM_PKG = $PLATFORM_PKG"
@@ -75,9 +81,9 @@ print_platform() {
 
 as_root() {
 	if has_cmd sudo; then
-		sudo $*
+		sudo $* || return $?
 	else
-		$*
+		$* || return $?
 	fi
 }
 
@@ -86,7 +92,7 @@ pkg_update_lists() {
 	$_pkg_lists_updated && return
 
 	case "$PLATFORM_PKG" in
-		apt) as_root apt-get update -y ;;
+		apt) as_root apt-get update ;;
 		yum) ;;
 		apk) as_root apk update ;;
 		brew) ;;
@@ -104,7 +110,8 @@ _pkg_map() {
 
 	# Mappings to platform specific package names
 	case "$PLATFORM_PKG-$1" in
-
+		apk-passwd) name="shadow" ;;
+		apk-gosu) name="su-exec" ;;
 	esac
 
 	echo $name
@@ -120,10 +127,13 @@ pkg_install() {
 	done
 
 	case "$PLATFORM_PKG" in
-		apt) as_root apt-get install -y $list ;;
-		yum) as_root yum install $list ;;
-		apk) as_root apk add $list ;;
-		brew) brew install $list ;;
+		apt)
+			as_root DEBIAN_FRONTEND=noninteractive \
+				apt-get install -y $list || return $?
+			;;
+		yum) as_root yum install $list || return $? ;;
+		apk) as_root apk add $list || return $? ;;
+		brew) brew install $list || return $? ;;
 		*)
 			echo "We could not identify your package manager"
 			exit 127
