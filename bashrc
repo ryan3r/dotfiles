@@ -1,3 +1,8 @@
+# Load machine specific bashrc {{{
+if [ -f ~/.bashrc.local ]; then
+	source ~/.bashrc.load
+fi
+# }}}
 # Environment {{{
 # Prefer vim
 command -v vim >/dev/null && {
@@ -259,4 +264,42 @@ info() {
 bind -x '"\eW":"__bordered who"'
 bind -x '"\eI":"__bordered info"'
 bind -x '"\eR":"reload"'
+# }}}
+# SSH agent {{{
+if [ -z "$SSH_AUTH_SOCK" ]; then
+	source ~/.ssh/agent_env 2>/dev/null
+
+	# ssh-add returns 2 if it can't connect to the agent
+	ssh-add -l >/dev/null 2>&1
+	if [ $? -eq 2 ]; then
+		if [ -n "$SSH_AGENT_TIMEOUT" ]; then
+			ssh-agent -t $SSH_AGENT_TIMEOUT >~/.ssh/agent_env
+		else
+			ssh-agent >~/.ssh/agent_env
+		fi
+
+		# Remove echos
+		sed '/echo/d' -i ~/.ssh/agent_env
+
+		source ~/.ssh/agent_env
+	fi
+fi
+
+# Configure ssh to add our key to the ssh-agent automatically
+if ! fgrep AddKeysToAgent >/dev/null 2>&1 ~/.ssh/config; then
+	_ssh_config=$(cat ~/.ssh/config)
+	cat >~/.ssh/config <<-EOF
+AddKeysToAgent yes
+
+${_ssh_config}
+EOF
+
+	chmod 600 ~/.ssh/config
+	unset _ssh_config
+fi
+
+# }}}
+# Post bashrc hook (for machine specific customizations {{{
+[[ $(type -t _post_bashrc) == function ]] && _post_bashrc
+unset _post_bashrc
 # }}}
