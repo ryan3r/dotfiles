@@ -469,4 +469,4 @@ unset add_help add_section
 # Post bashrc hook (for machine specific customizations {{{
 [[ $(type -t _post_bashrc) == function ]] && _post_bashrc
 unset _post_bashrc
-# }}
+# }}}
