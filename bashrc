@@ -1,6 +1,6 @@
 # Load machine specific bashrc {{{
 if [ -f ~/.bashrc.local ]; then
-	source ~/.bashrc.load
+	source ~/.bashrc.local
 fi
 # }}}
 # Help {{{
