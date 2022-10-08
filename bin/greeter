@@ -46,16 +46,7 @@ elif [ -f /etc/redhat-release ]; then
 fi
 
 # Get the hash of the dotfiles
-dotfiles=""
-for bashrc in ~/.bashrc /etc/bash.bashrc; do
-	parent="$(dirname "$(readlink "$bashrc")")"
-
-	if [ "$(basename "$parent")" == "dotfiles" ]; then
-		dotfiles="$parent"
-		break
-	fi
-done
-
+dotfiles="$(realpath -- "$(dirname -- "${BASH_SOURCE[0]}")/..")"
 if [ -n "$dotfiles" ]; then
 	pushd "$dotfiles" >/dev/null 2>&1
 	dotfiles="$(git rev-parse --short HEAD)"

@@ -46,6 +46,27 @@ command -v nvim >/dev/null && {
 }
 
 [ -z "$MAIN_USER" ] && export MAIN_USER="ryan"
+
+path_add() {
+	if ! echo $PATH | grep -E "(^|:)$1(:|$)" >/dev/null && [ -d "$1" ]; then
+		export PATH="$1:$PATH"
+	fi
+}
+
+dotfiles=""
+for bashrc in ~/.bashrc /etc/bash.bashrc; do
+       parent="$(dirname "$(readlink "$bashrc")")"
+
+       if [ "$(basename "$parent")" == "dotfiles" ]; then
+               dotfiles="$parent"
+               break
+       fi
+done
+
+path_add "$dotfiles/bin"
+
+unset path_add dotfiles
+
 # }}}
 # System info {{{
 
