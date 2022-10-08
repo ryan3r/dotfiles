@@ -56,32 +56,6 @@ __bordered() {
 }
 
 info() {
-	local dotfiles=""
-	for bashrc in ~/.bashrc /etc/bash.bashrc; do
-		local parent="$(dirname "$(readlink "$bashrc")")"
-
-		if [ "$(basename "$parent")" == "dotfiles" ]; then
-			dotfiles="$parent"
-			break
-		fi
-	done
-
-	if [ -n "$dotfiles" ]; then
-		local dotver="$(cd "$dotfiles"; git rev-parse --short HEAD)"
-		dotfiles=" [\e[0;36mdotfiles\e[0m @ \e[0;35m$dotver\e[0m]"
-	fi
-
-	local hostname="${HOSTNAME:-$(hostname)}"
-	if command -v lsb_release >/dev/null; then
-		hostname+=" - $(lsb_release -ircs | xargs)"
-
-		case "$(lsb_release -si)" in
-			Debian) hostname="\e[38;5;196m$hostname\e[0m" ;;
-			Ubuntu) hostname="\e[38;5;208m$hostname\e[0m" ;;
-		esac
-	fi
-	echo -e "$hostname$dotfiles"
-
 	local ips="$(ip -o address)"
 	local macs="$(ip -o link)"
 	local nics="$(echo "$ips" | grep -E '^[0-9]+: (w|en)[a-z0-9A-Z]+\s+inet ' | awk '{print $2}')"

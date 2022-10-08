@@ -73,16 +73,23 @@ fi
 ########################################
 
 if [ "$R3_SYSTEM_WIDE" == "yes" ]; then
-	link $dotfiles/bashrc /etc/bash.bashrc
-	link $dotfiles/bashrc /etc/bash/bashrc
+	for bashrc in /etc/bash.bashrc /etc/bashrc /etc/bash/bashrc; do
+		[ -f $bashrc ] && link $dotfiles/bashrc $bashrc
+	done
 	link $dotfiles/vimrc /etc/vim/vimrc
 	link $dotfiles/tmux.conf /etc/tmux.conf
+	if ! fgrep "$dotfiles/bin/greeter" /etc/profile >/dev/null; then
+		echo -e "# Print system info on login\n$dotfiles/bin/greeter" >>/etc/profile
+	fi
 else
 	mkdir -p ~/.config/git/
 	link $dotfiles/gitignore ~/.config/git/ignore
 	link $dotfiles/bashrc ~/.bashrc
 	link $dotfiles/vimrc ~/.vimrc
 	link $dotfiles/tmux.conf ~/.tmux.conf
+	if ! fgrep "$dotfiles/bin/greeter" ~/.profile >/dev/null; then
+		echo -e "# Print system info on login\n$dotfiles/bin/greeter" >>~/.profile
+	fi
 fi
 
 ########################################

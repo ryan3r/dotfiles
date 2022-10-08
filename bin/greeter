@@ -1,0 +1,98 @@
+#!/bin/bash
+
+export CGREY="\033[1;30m"
+export CRED="\033[31m"
+export CYELLOW="\033[33m"
+export CRESET="\033[0m"
+
+export g="\e[0;35m" # Ground color
+export y="\e[0;36m" # Kilroy skin color
+export p="\e[0;36m" # Trident color
+export h="\e[0;33m" # Horn color
+export R="\e[5;31m" # Eye color
+export r="\e[0m"    # Reset
+
+pair() {
+	width=56
+	padding="$(printf '%0.1s' "."{1..60})"
+	echo -n "   $1 "
+	printf "${CGREY}%*.*s${CRESET}" 0 $((width - ${#1} - ${#2} - 8)) "$padding"
+	echo " $2   "
+}
+
+export -f pair
+
+echo
+echo -e "                 $h/\\            /\\"
+echo -e "                $h/ /            \\ \\"
+echo -e "                $h\\ \\\\${y}____________$h/ /    $p/\\     / \\     /\\"
+echo -e "                 $h\\\\$y/            \\\\$h/     $p\\ \\    | |    / /"
+echo -e "                 $y/              \\      $p\\ \\___| |___/ /"
+echo -e "                $y/     $R\\    /     $y\\      $p\\____   ____/"
+echo -e "               $y|                  |          $p| |"
+echo -e "               $y|     \\      /     |          $p| |"
+echo -e "  ${y}________$r     $y|      \\    /      |          $p| |"
+echo -e "$g--$y||||||||$g-------------$y\\  /$g-----------------------------$r"
+echo -e "  $y\\/\\/\\/\\/              \\/$r"
+echo
+echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+
+# Get the distro name
+distro=""
+if command -v lsb_release >/dev/null; then
+	distro="$(lsb_release -irs | xargs)"
+elif [ -f /etc/redhat-release ]; then
+	distro="$(cat /etc/redhat-release)"
+fi
+
+# Get the hash of the dotfiles
+dotfiles=""
+for bashrc in ~/.bashrc /etc/bash.bashrc; do
+	parent="$(dirname "$(readlink "$bashrc")")"
+
+	if [ "$(basename "$parent")" == "dotfiles" ]; then
+		dotfiles="$parent"
+		break
+	fi
+done
+
+if [ -n "$dotfiles" ]; then
+	pushd "$dotfiles" >/dev/null 2>&1
+	dotfiles="$(git rev-parse --short HEAD)"
+	[ -n "$(git status --porcelain)" ] && dotfiles+=" (dirty)"
+	popd >/dev/null 2>&1
+fi
+
+pair "Hostname" "$(hostname)"
+[ -n "$distro" ] && pair "Distro" "$distro"
+pair "Kernel" "$(uname -r)"
+pair "Dotfiles" "$dotfiles"
+
+echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+
+pair "Uptime" "$(uptime -p)"
+pair "Load" "$(cat /proc/loadavg | awk '{print $1", "$2", "$3}')"
+pair "Ram" "$(free -h | awk '/Mem/ {print $3" / "$2}')"
+
+swap_usage="$(free -h | awk '/Swap/ {print $3" / "$2}')"
+[ -n "$swap_usage" ] && pair "Swap" "$swap_usage"
+
+echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+
+df -h \
+        | awk "/^\\// {print \$1\" '\"\$5\" of \"\$2\"'\"}" \
+        | sed -e 's/^\/dev\///' -e 's/^mapper\///' \
+        | sort \
+		| xargs bash -c 'while [[ $# -gt 0 ]]; do pair "$1" "$2"; shift; shift; done' placeholder \
+        | awk "{ \
+                gsub(\"8[5-9]%|9[0-9]%|100%\", \"$CRED&$CRESET\"); \
+                gsub(\"7[5-9]%|8[0-4]%\", \"$CYELLOW&$CRESET\"); \
+                print }"
+
+echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+echo
+
+if [ -f /var/run/reboot-required ]; then
+	echo -e "${CRED} *** Reboot Required ***${CRESET}"
+	echo
+fi
