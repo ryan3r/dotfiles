@@ -4,6 +4,7 @@ export CGREY="\033[1;30m"
 export CRED="\033[31m"
 export CBRED="\033[1;31m"
 export CYELLOW="\033[33m"
+export CCYAN="\033[36m"
 export CRESET="\033[0m"
 
 export g="\e[0;35m" # Ground color
@@ -13,30 +14,46 @@ export h="\e[0;33m" # Horn color
 export R="\e[5;31m" # Eye color
 export r="\e[0m"    # Reset
 
+export PAIR_WIDTH=56
+
 pair() {
-	width=56
-	padding="$(printf '%0.1s' "."{1..60})"
-	echo -n "  $1 "
-	printf "${CGREY}%*.*s${CRESET}" 0 $((width - ${#1} - ${#2} - 6)) "$padding"
-	echo " $2  "
+	local width=$PAIR_WIDTH
+	local padding="$(printf '%0.1s' "."{1..60})"
+	local split_width=$((width - 7))
+	local first="${1::$((split_width / 3))}"
+	if [ $# -gt 2 ]; then
+		local second_len="${3}"
+		local second="${2}"
+	else
+		local second_len="${#2}"
+		local second="${2::$((split_width * 2 / 3))}"
+	fi
+
+	echo -ne " ${CYELLOW}|${CRESET} $first "
+	printf "${CGREY}%*.*s${CRESET}" 0 $((width - ${#first} - ${second_len} - 6)) "$padding"
+	echo -e " $second ${CYELLOW}|${CRESET}"
+}
+
+bar() {
+	echo -e " ${CYELLOW}+------------------------------------------------------+${CRESET}"
 }
 
 export -f pair
 
 echo
-echo -e "                 $h/\\            /\\"
-echo -e "                $h/ /            \\ \\"
-echo -e "                $h\\ \\\\${y}____________$h/ /    $p/\\     / \\     /\\"
-echo -e "                 $h\\\\$y/            \\\\$h/     $p\\ \\    | |    / /"
-echo -e "                 $y/              \\      $p\\ \\___| |___/ /"
-echo -e "                $y/     $R\\    /     $y\\      $p\\____   ____/"
-echo -e "               $y|                  |          $p| |"
-echo -e "               $y|     \\      /     |          $p| |"
-echo -e "  ${y}________$r     $y|      \\    /      |          $p| |"
-echo -e "$g--$y||||||||$g-------------$y\\  /$g-----------------------------$r"
-echo -e "  $y\\/\\/\\/\\/              \\/$r"
+echo -e "                  $h/\\            /\\"
+echo -e "                 $h/ /            \\ \\"
+echo -e "                 $h\\ \\\\${y}____________$h/ /    $p/\\     / \\     /\\"
+echo -e "                  $h\\\\$y/            \\\\$h/     $p\\ \\    | |    / /"
+echo -e "                  $y/              \\      $p\\ \\___| |___/ /"
+echo -e "                 $y/     $R\\    /     $y\\      $p\\____   ____/"
+echo -e "                $y|                  |          $p| |"
+echo -e "                $y|     \\      /     |          $p| |"
+echo -e "   ${y}________$r     $y|      \\    /      |          $p| |"
+echo -e "$g---$y||||||||$g-------------$y\\  /$g------------------------------$r"
+echo -e "   $y\\/\\/\\/\\/              \\/$r"
 echo
-echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+bar
 
 # Get the distro name
 distro=""
@@ -50,16 +67,16 @@ fi
 dotfiles="$(realpath -- "$(dirname -- "${BASH_SOURCE[0]}")/..")"
 if [ -n "$dotfiles" ]; then
 	pushd "$dotfiles" >/dev/null 2>&1
-	dotfiles="$(git rev-parse --short HEAD)"
-	[ -n "$(git status --porcelain)" ] && dotfiles+=" (dirty)"
+	dotfiles="$(git rev-parse --short HEAD 2>/dev/null)"
+	[ -n "$(git status --porcelain 2>/dev/null)" ] && dotfiles+=" (dirty)"
 	popd >/dev/null 2>&1
 fi
 
 pair "Hostname" "$(hostname)"
 [ -n "$distro" ] && pair "Distro" "$distro"
-pair "Dotfiles" "$dotfiles"
+[ -n "$dotfiles" ] && pair "Dotfiles" "$dotfiles"
 
-echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+bar
 
 pair "Uptime" "$(uptime -p)"
 pair "Load" "$(cat /proc/loadavg | awk '{print $1", "$2", "$3}')"
@@ -68,7 +85,7 @@ pair "Ram" "$(free -h | awk '/Mem/ {print $3" / "$2}')"
 swap_usage="$(free -h | awk '/Swap/ {print $3" / "$2}')"
 [ -n "$swap_usage" ] && pair "Swap" "$swap_usage"
 
-echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+bar
 
 df -h \
 	| awk "/^\\// {print \$1\" '\"\$3\" of \"\$2\" (\"\$5\")'\"}" \
@@ -80,7 +97,46 @@ df -h \
 		gsub(\"7[5-9]%|8[0-4]%\", \"$CYELLOW&$CRESET\"); \
 		print }"
 
-echo -e "${CYELLOW}--------------------------------------------------------${CRESET}"
+bar
+
+ctrs_tmp="$(mktemp)"
+if command -v docker >/dev/null; then
+	docker ps --format="{{.Names}}#{{.Image}}" 2>/dev/null >"$ctrs_tmp"
+fi
+
+if [ -n "$(cat "$ctrs_tmp")" ]; then
+	while IFS= read -r line; do
+		name="$(echo "$line" | cut -d '#' -f 1)"
+		image="$(echo "$line" | cut -d '#' -f 2)"
+
+		image="$(echo "$image" | awk -F/ '{print $NF}')"
+		image="${image::$((PAIR_WIDTH * 2 / 3))}"
+
+		if echo "$image" | fgrep : >/dev/null; then
+			image_name="$(echo "$image" | cut -d ':' -f 1)"
+			image_suffix="$(echo "$image" | cut -d ':' -f 2)"
+			image_c="${image_name}${CGREY}:${image_suffix}${CRESET}"
+		else
+			image_c="${image}"
+		fi
+
+		pair "$name" "$image_c" "${#image}"
+	done < "$ctrs_tmp"
+
+	bar
+fi
+rm "$ctrs_tmp"
+
+ips="$(ip -o address)"
+nics="$(echo "$ips" | grep -E '^[0-9]+: (w|en)[a-z0-9A-Z]+\s+inet ' | awk '{print $2}')"
+if [ -n "$ips" ]; then                                                       
+	for nic in $nics; do
+		addr="$(echo "$ips" | fgrep "$nic" | grep -oP 'inet[^6]\s*\K[^ ]+')"
+		pair "${nic}" "${addr}"
+	done                                                                     
+	bar
+fi 
+
 echo
 
 if [ -f /var/run/reboot-required ]; then
