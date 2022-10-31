@@ -335,7 +335,7 @@ pretty_custom_prompt() {
 	if [ -n "$(git rev-parse --git-dir 2>/dev/null)" ]; then
 		# Git ahead and behind status 
 		local behindBy=""
-		case "$(git status | grep -o 'ahead\|behind\|diverged')" in 
+		case "$(git status 2>/dev/null | grep -o 'ahead\|behind\|diverged')" in 
 			ahead)
 				behindBy="+"
 				;;
@@ -347,7 +347,7 @@ pretty_custom_prompt() {
 				;;
 		esac
 
-		local status="$(git status --porcelain)"
+		local status="$(git status --porcelain 2>/dev/null)"
 		if [ -z "$status" ]; then
 			PS1="$PS1\[\033[1;32m\]"
 		else

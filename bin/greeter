@@ -14,7 +14,7 @@ export h="\e[0;33m" # Horn color
 export R="\e[5;31m" # Eye color
 export r="\e[0m"    # Reset
 
-export PAIR_WIDTH=56
+export PAIR_WIDTH=54
 
 pair() {
 	local width=$PAIR_WIDTH
@@ -35,23 +35,23 @@ pair() {
 }
 
 bar() {
-	echo -e " ${CYELLOW}+------------------------------------------------------+${CRESET}"
+	echo -e " ${CYELLOW}+----------------------------------------------------+${CRESET}"
 }
 
 export -f pair
 
 echo
-echo -e "                  $h/\\            /\\"
-echo -e "                 $h/ /            \\ \\"
-echo -e "                 $h\\ \\\\${y}____________$h/ /    $p/\\     / \\     /\\"
-echo -e "                  $h\\\\$y/            \\\\$h/     $p\\ \\    | |    / /"
-echo -e "                  $y/              \\      $p\\ \\___| |___/ /"
-echo -e "                 $y/     $R\\    /     $y\\      $p\\____   ____/"
-echo -e "                $y|                  |          $p| |"
-echo -e "                $y|     \\      /     |          $p| |"
-echo -e "   ${y}________$r     $y|      \\    /      |          $p| |"
-echo -e "$g---$y||||||||$g-------------$y\\  /$g------------------------------$r"
-echo -e "   $y\\/\\/\\/\\/              \\/$r"
+echo -e "                 $h/\\            /\\"
+echo -e "                $h/ /            \\ \\"
+echo -e "                $h\\ \\\\${y}____________$h/ /    $p/\\     / \\     /\\"
+echo -e "                 $h\\\\$y/            \\\\$h/     $p\\ \\    | |    / /"
+echo -e "                 $y/              \\      $p\\ \\___| |___/ /"
+echo -e "                $y/     $R\\    /     $y\\      $p\\____   ____/"
+echo -e "               $y|                  |          $p| |"
+echo -e "               $y|     \\      /     |          $p| |"
+echo -e "  ${y}________$r     $y|      \\    /      |          $p| |"
+echo -e "$g--$y||||||||$g-------------$y\\  /$g-----------------------------$r"
+echo -e "  $y\\/\\/\\/\\/              \\/$r"
 echo
 bar
 
