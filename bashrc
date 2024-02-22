@@ -1,9 +1,14 @@
-# Load machine specific bashrc {{{
+############################################################
+# Load machine specific bashrc                             #
+############################################################
+
 if [ -f ~/.bashrc.local ]; then
 	source ~/.bashrc.local
 fi
-# }}}
-# Help {{{
+
+############################################################
+# Help                                                     #
+############################################################
 __help=""
 
 __border() {
@@ -30,15 +35,20 @@ help() {
 	echo -e "$__help" | less -R
 }
 
-# }}}
-# Environment {{{
+
+############################################################
+# Environment                                              #
+############################################################
+
 # Prefer vim
 command -v vim >/dev/null && {
 	export EDITOR=vim
+	__r3_cli_editor=vim
 }
 
 command -v nvim >/dev/null && {
 	export EDITOR=nvim
+	__r3_cli_editor=nvim
 }
 
 [ "$TERM_PROGRAM" == "vscode" ] && {
@@ -67,8 +77,10 @@ path_add "$dotfiles/bin"
 
 unset path_add dotfiles
 
-# }}}
-# System info {{{
+
+############################################################
+# System info                                              #
+############################################################
 
 __bordered() {
 	__border 58 "~" "<" ">"
@@ -114,11 +126,17 @@ info() {
 	[[ $(type -t _extra_info) == function ]] && _extra_info
 }
 
-# }}}
-# Stop if we are not running interactivly {{{
+
+############################################################
+# Stop if we are not running interactivly                  #
+############################################################
+
 [[ "$-" == *i* ]] || return
-# }}} 
-# Color cli apps {{{
+ 
+############################################################
+# Color cli apps                                           #
+############################################################
+
 # Busybox doesn't support color options
 if [ ! -L "$(command -v ls)" ]; then
 	alias ls='ls --color=auto'
@@ -130,8 +148,11 @@ fi
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
-# }}}
-# Aliases {{{
+
+############################################################
+# Aliases                                                  #
+############################################################
+
 mk_alias() {
 	alias "$1"="$2"
 	add_help "$1" "${3:-$2}"
@@ -147,11 +168,28 @@ if command -v lsd >/dev/null; then
 	alias ls='lsd'
 fi
 
-# General {{{
+############################################################
+# General                                                  #
+############################################################
+
 add_section General
-mk_alias reload "source ~/.bashrc; echo Reloaded bashrc" "Reload bashrc"
-mk_alias e "$(echo $EDITOR | cut -d ' ' -f 1)"
-mk_alias eb "e ~/.bashrc"
+mk_alias reload "source ${BASH_SOURCE[0]}; echo Reloaded ${BASH_SOURCE[0]}" "Reload ${BASH_SOURCE[0]}"
+
+add_help e "Open a file with your editor"
+e() {
+	local editor="$(echo $EDITOR | cut -d ' ' -f 1)"
+
+	if [ -w "$1" ]; then
+		"$editor" "$1"
+	else
+		sudo "${__r3_cli_editor:-vim}" "$1"
+	fi
+
+	return $?
+}
+
+
+mk_alias eb "e source ${BASH_SOURCE[0]}"
 mk_alias ll 'ls -alF'
 mk_alias la 'ls -A'
 mk_alias mk 'mkdir -p'
@@ -163,8 +201,11 @@ else
 	mk_alias py python
 fi
 
-# }}}
-# Tmux {{{
+
+############################################################
+# Tmux                                                     #
+############################################################
+
 if command -v tmux >/dev/null; then
 	add_section Tmux
 	mk_alias ta "tmux attach"
@@ -172,8 +213,11 @@ if command -v tmux >/dev/null; then
 	mk_alias ts "tmux new -s" "New tmux session <session>"
 	mk_alias tse "exec tmux new -s" "New tmux session <session> & exit"
 fi
-# }}}
-# Git {{{
+
+############################################################
+# Git                                                      #
+############################################################
+
 if command -v git >/dev/null; then
 	GIT_MAIN_BRANCHES=("master" "main")
 
@@ -243,7 +287,7 @@ if command -v git >/dev/null; then
 	}
 
 	mk_alias unstage '(groot && git reset HEAD -- .)' "Unstage all changes"
-	mk_alias clean '(groot && git clean -Xdff -e .vscode)' "Git clean keep ignored"
+	mk_alias clean '(groot && git clean -Xdff)' "Delete git ignored files (keeps new)"
 	mk_alias nuke '(groot && unstage && git clean -xdff -e .vscode && git checkout -f)' "Wipe everything clean"
 
 	add_section "Git remotes and merging"
@@ -286,42 +330,61 @@ if command -v git >/dev/null; then
 		git rebase origin/"$(_fork_branch)"
 	}
 fi
-# }}}
-# Docker {{{
+
+############################################################
+# Docker                                                   #
+############################################################
+
 if command -v docker >/dev/null; then
+	docker_sudo=""
+	if [ ! -w /var/run/docker.sock ]; then
+		docker_sudo="sudo "
+	fi
+
 	add_section "Docker"
-	mk_alias "dp" 'docker ps'
-	mk_alias "di" 'docker images'
-	mk_alias "dr" 'docker run --rm -it' "Docker run interactive and remove"
-	mk_alias "dk" 'docker kill'
-	mk_alias "dcp" 'docker container prune'
-	mk_alias "dsp" 'docker system prune'
-	mk_alias "dup" 'docker compose up'
-	mk_alias "dud" 'docker compose up -d'
-	mk_alias "ddn" 'docker compose down'
+	mk_alias "dp" "${docker_sudo}docker ps"
+	mk_alias "di" "${docker_sudo}docker images"
+	mk_alias "dr" "${docker_sudo}docker run --rm -it" "Docker run interactive and remove"
+	mk_alias "dk" "${docker_sudo}docker kill"
+	mk_alias "dcp" "${docker_sudo}docker container prune"
+	mk_alias "dsp" "${docker_sudo}docker system prune"
+	mk_alias "dup" "${docker_sudo}docker compose up"
+	mk_alias "dud" "${docker_sudo}docker compose up -d"
+	mk_alias "ddn" "${docker_sudo}docker compose down"
 	
 	add_help 'dka' "Kill all containers"
 	dka() {
 		docker kill "$(docker ps -q)"
 	}
+
+	unset docker_sudo
 fi
-# }}}
+
 
 unset mk_alias
-# }}}
-# Completion {{{
+
+############################################################
+# Completion                                               #
+############################################################
+
 shopt -s globstar
 shopt -s autocd
-# }}}
-# History {{{
+
+############################################################
+# History                                                  #
+############################################################
+
 # don't put duplicate lines or lines starting with space in the history.
 HISTCONTROL=ignoreboth
 # Keep my full histpry
 HISTSIZE=
 HISTFILESIZE=
 shopt -s histappend
-# }}}
-# Prompt {{{
+
+############################################################
+# Prompt                                                   #
+############################################################
+
 # Set values for LINES and COLUMNS
 pretty_custom_prompt() {
 	PS1="$R3_PREFIX"
@@ -430,8 +493,11 @@ custom_prompt() {
 
 PROMPT_COMMAND=custom_prompt
 unset color_prompt 
-# }}}
-# Keybinds {{{
+
+############################################################
+# Keybinds                                                 #
+############################################################
+
 add_section "Keybinds"
 add_help "Alt-Shift-W" "Who/Finger"
 bind -x '"\eW":"__bordered who"'
@@ -439,8 +505,11 @@ add_help "Alt-Shift-I" "Useful system info (ctrs, git status, jobs, tmux...)"
 bind -x '"\eI":"__bordered info"'
 add_help "Alt-Shift-R" "Reload bashrc"
 bind -x '"\eR":"reload"'
-# }}}
-# SSH agent {{{
+
+############################################################
+# SSH agent                                                #
+############################################################
+
 if [ -z "$SSH_AUTH_SOCK" ]; then
 	mkdir -p ~/.ssh
 	source ~/.ssh/agent_env >/dev/null 2>&1
@@ -457,11 +526,17 @@ if [ -z "$SSH_AUTH_SOCK" ]; then
 		source ~/.ssh/agent_env >/dev/null
 	fi
 fi
-# }}}
-# Cleanup environment {{{
+
+############################################################
+# Cleanup environment                                      #
+############################################################
+
 unset add_help add_section
-# }}}
-# Post bashrc hook (for machine specific customizations {{{
+
+############################################################
+# Post bashrc hook (for machine specific customizations    #
+############################################################
+
 [[ $(type -t _post_bashrc) == function ]] && _post_bashrc
 unset _post_bashrc
-# }}}
+
