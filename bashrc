@@ -143,7 +143,7 @@ info() {
 		printf "\e[36m%s\e[0m %-20s \e[33m%s\e[0m\n" $ctrs
 	fi
 
-	[[ $(type -t _extra_info) == function ]] && _extra_info
+	[[ $(type -t _r3_extra_info) == function ]] && _r3_extra_info
 }
 
 
@@ -195,7 +195,7 @@ fi
 __r3_source_file="$(realpath -- "${BASH_SOURCE[0]}")"
 
 add_section General
-mk_alias reload "source ${__r3_source_file}; echo Reloaded ${__r3_source_file}" "Reload ${__r3_source_file}"
+mk_alias reload "unset __R3_NOT_NEW_SHELL ; source ${__r3_source_file}" "Reload ${__r3_source_file}"
 
 add_help e "Open a file with your editor"
 e() {
@@ -393,6 +393,20 @@ shopt -s histappend
 # Prompt                                                   #
 ############################################################
 
+__r3_prompt_ssh_agent() {
+	local color=""
+
+	ssh-add -l &>/dev/null
+	local status=$?
+	if [ $status -eq 1 ]; then
+		color="1;33"
+	elif [ $status -gt 1 ]; then
+		color="1;31"
+	fi
+
+	[ -n "$color" ] && echo "\[\e[${color}m\]!\[\e[0m\] "
+}
+
 __r3_prompt_jobs() {
 	local jobs_result="$(jobs -l)"
 	# Show running jobs
@@ -559,9 +573,55 @@ fi
 unset add_help add_section
 
 ############################################################
-# Post bashrc hook (for machine specific customizations    #
+# Print helpful info on login                              #
 ############################################################
 
-[[ $(type -t _post_bashrc) == function ]] && _post_bashrc
-unset _post_bashrc
+__r3_greeter() {
+	local msg="Good "
+
+	if [ "$(date +%H)" -gt 5 ]; then
+		msg+="morning"
+	elif [ $(date +%H) -gt 11 ]; then
+		msg+="afternoon"
+	elif [ $(date +%H) -gt 18 ]; then
+		msg+="evening"
+	else
+		msg+="night"
+	fi
+
+	local tmux_count="$(tmux ls 2>/dev/null | wc -l)"
+	if [ -n "$tmux_count" ] && [ "$tmux_count" != "0" ]; then
+		msg+=", \e[1;36m$tmux_count tmux session\e[0m"
+	fi
+
+	ssh-add -l &>/dev/null
+	if [ $? -eq 1 ]; then
+		msg+=", \e[1;33mNo keys!\e[0m"
+
+		if [ -n "$SSH_AGENT_PID" ]; then
+			msg+=" \e[1;35m(L)\e[0m"
+		fi
+	fi
+
+	local onlineUsers=$(who | cut -d ' ' -f 1 | sort | uniq | wc -l)
+	if [ $onlineUsers -gt 1 ]; then
+		msg+=", \e[1;32m$onlineUsers users online\e[0m"
+	fi
+
+	[[ $(type -t _r3_greeter_hook) == function ]] && msg+="$(_r3_greeter_hook)"
+
+	echo -e "$msg"
+}
+
+if [ -z "$__R3_NOT_NEW_SHELL" ]; then
+	__r3_greeter
+	export __R3_NOT_NEW_SHELL=1
+fi
+
+############################################################
+# Post bashrc hook (for machine specific customizations)   #
+############################################################
+
+[[ $(type -t _r3_post_bashrc) == function ]] && _r3_post_bashrc
+unset _r3_post_bashrc
 
