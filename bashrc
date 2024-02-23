@@ -51,11 +51,7 @@ command -v nvim >/dev/null && {
 	__r3_cli_editor=nvim
 }
 
-[ "$TERM_PROGRAM" == "vscode" ] && {
-	export EDITOR="code --wait"
-}
-
-[ -z "$MAIN_USER" ] && export MAIN_USER="ryan"
+[ -z "$R3_MAIN_USER" ] && export R3_MAIN_USER="ryan"
 
 path_add() {
 	if ! echo $PATH | grep -E "(^|:)$1(:|$)" >/dev/null && [ -d "$1" ]; then
@@ -88,9 +84,33 @@ __bordered() {
 	echo
 }
 
+__r3_print_versions() {
+	local versions=""
+	local color="$1"
+	shift
+
+	for cmd in "$@"; do
+		if command -v $cmd &>/dev/null; then
+			versions+="${color}$cmd\e[30m/$($cmd --version | grep -Po '\d+\.\d+(\.\d+)?' | head -1)\e[0m "
+		fi
+	done
+
+	[ -n "$versions" ] && echo -e "$versions"
+}
+
+__r3_print_tool_versions() {
+	__r3_print_versions "\e[0;35m" vim nvim git docker
+	__r3_print_versions "\e[0;33m" python pip python3 pip3
+	__r3_print_versions "\e[0;32m" node nodejs npm yarn
+	__r3_print_versions "\e[0;34m" gcc g++ make cmake clang clangd
+}
+
 info() {
-	local ips="$(ip -o address)"
-	local macs="$(ip -o link)"
+	echo -e "\n$(__heading "Tools")"
+	__r3_print_tool_versions
+
+	local ips="$(ip -o address 2>/dev/null)"
+	local macs="$(ip -o link 2>/dev/null)"
 	local nics="$(echo "$ips" | grep -E '^[0-9]+: (w|en)[a-z0-9A-Z]+\s+inet ' | awk '{print $2}')"
 	if [ -n "$ips" ]; then
 		echo -e "\n$(__heading "Network")"
@@ -172,8 +192,10 @@ fi
 # General                                                  #
 ############################################################
 
+__r3_source_file="$(realpath -- "${BASH_SOURCE[0]}")"
+
 add_section General
-mk_alias reload "source ${BASH_SOURCE[0]}; echo Reloaded ${BASH_SOURCE[0]}" "Reload ${BASH_SOURCE[0]}"
+mk_alias reload "source ${__r3_source_file}; echo Reloaded ${__r3_source_file}" "Reload ${__r3_source_file}"
 
 add_help e "Open a file with your editor"
 e() {
@@ -189,7 +211,7 @@ e() {
 }
 
 
-mk_alias eb "e source ${BASH_SOURCE[0]}"
+mk_alias eb "e source ${__r3_source_file}"
 mk_alias ll 'ls -alF'
 mk_alias la 'ls -A'
 mk_alias mk 'mkdir -p'
@@ -197,7 +219,7 @@ mk_alias mk 'mkdir -p'
 # Python
 if command -v python3 >/dev/null; then
 	mk_alias py python3
-else
+elif command -v python >/dev/null; then
 	mk_alias py python
 fi
 
@@ -219,21 +241,12 @@ fi
 ############################################################
 
 if command -v git >/dev/null; then
-	GIT_MAIN_BRANCHES=("master" "main")
+	[ -z "$GIT_MAIN_BRANCHES" ] && GIT_MAIN_BRANCHES=("master" "main")
 
 	_fork_point() {
 		local commit="$(git rev-parse HEAD)"
 		for branch in ${GIT_MAIN_BRANCHES[@]}; do
 			if git merge-base $branch $commit 2>/dev/null; then
-				break
-			fi
-		done
-	}
-
-	_fork_branch() {
-		local commit="$(git rev-parse HEAD)"
-		for branch in ${GIT_MAIN_BRANCHES[@]}; do
-			if git merge-base $branch $commit >/dev/null 2>/dev/null; then
 				echo $branch
 				break
 			fi
@@ -241,11 +254,11 @@ if command -v git >/dev/null; then
 	}
 
 	add_section "Git status/log"
-	mk_alias lg 'git log --graph --oneline $(_fork_point)..' "One line git log"
+	mk_alias lg 'git log --graph --oneline $(_fork_point | head -1)..' "One line git log"
 	mk_alias l1 'git log -1' "Last commit"
 	mk_alias gs 'git status'
 	mk_alias gd 'git diff'
-	mk_alias gdf 'git diff $(_fork_point)..' "Git diff since fork from \$GIT_MAIN_BRANCHES"
+	mk_alias gdf 'git diff $(_fork_point | head -1)..' "Git diff since fork from \$GIT_MAIN_BRANCHES"
 	mk_alias gb 'git branch'
 
 	add_section "Git branches/commits"
@@ -270,33 +283,24 @@ if command -v git >/dev/null; then
 	mk_alias wtl 'git worktree list'
 	mk_alias wtr 'git worktree remove'
 
-	add_help "wta" "Add a worktree (don't branch) <branch_name>"
+	add_help "wto" "Add a worktree (don't branch) <branch_name> [folder_name]"
 	wta() {
-		git worktree add "../$1" "$1"
+		git worktree add "${R3_WORKSPACE_ROOT:-..}/${2:-$1}" "$1"
 	}
 
-	add_help "wtb" "Add a worktree and branch <branch_name>"
+	add_help "wtb" "Add a worktree and branch <branch_name> [folder_name]"
 	wtb() {
-		git worktree add -b "../$1" "$1"
+		git worktree add -b "${R3_WORKSPACE_ROOT:-..}/${2:-$1}" "$1"
 	}
 
 	add_section "Miscellaneous git"
-	add_help groot "Cd to git root"
-	groot() {
-		cd "$(git rev-parse --show-toplevel)"
-	}
-
+	mk_alias groot 'cd "$(git rev-parse --show-toplevel)"' "Cd to git root"
 	mk_alias unstage '(groot && git reset HEAD -- .)' "Unstage all changes"
 	mk_alias clean '(groot && git clean -Xdff)' "Delete git ignored files (keeps new)"
 	mk_alias nuke '(groot && unstage && git clean -xdff -e .vscode && git checkout -f)' "Wipe everything clean"
 
 	add_section "Git remotes and merging"
-	add_help gf "Git fetch all remotes w/ tags"
-	gf() {
-		for remote in $(git remote); do
-			git fetch --tags -f "$remote" || return $?
-		done
-	}
+	mk_alias gf 'git fetch --tags -f --all' "Git fetch all remotes w/ tags"
 
 	add_help pu "Git push [remote] [branch]"
 	pu() {
@@ -319,16 +323,8 @@ if command -v git >/dev/null; then
 	mk_alias mr 'git merge'
 	mk_alias rb 'git rebase'
 	mk_alias sq 'git merge --squash'
-
-	add_help mro "Git merge origin"
-	mro() {
-		git merge origin/"$(_fork_branch)"
-	}
-
-	add_help rbo "Git rebase origin"
-	rbo() {
-		git rebase origin/"$(_fork_branch)"
-	}
+	mk_alias mro 'git merge origin/$(_fork_point | tail -1)' "Git merge origin"
+	add_help rbo 'git rebase origin/$(_fork_point | tail -1)' "Git rebase origin"
 fi
 
 ############################################################
@@ -360,6 +356,18 @@ if command -v docker >/dev/null; then
 	unset docker_sudo
 fi
 
+############################################################
+# VS Code                                                  #
+############################################################
+
+if [ "$TERM_PROGRAM" == "vscode" ]; then
+	export EDITOR="code --wait"
+
+	add_section "VS Code"
+	mk_alias cor "code --reuse-window"
+	mk_alias con "code --new-window"
+	mk_alias coa "code --add"
+fi
 
 unset mk_alias
 
@@ -385,13 +393,19 @@ shopt -s histappend
 # Prompt                                                   #
 ############################################################
 
-# Set values for LINES and COLUMNS
-pretty_custom_prompt() {
-	PS1="$R3_PREFIX"
-
+__r3_prompt_jobs() {
+	local jobs_result="$(jobs -l)"
 	# Show running jobs
 	if [ -n "$jobs_result" ]; then
-		PS1="$PS1\[\033[1;36m\]$(echo "$jobs_result" | wc -l)*\[\033[0m\] "
+		echo "\[\033[1;36m\][$(echo "$jobs_result" | awk '{print $4}' | xargs | tr ' ' ',')]\[\033[0m\] "
+	fi
+}
+
+__r3_prompt_git() {
+	if [ -z "$__r3_timeout_set" ] && command -v timeout &>/dev/null && [ "${__r3_shell}" == "bash" ]; then
+		# Git commands can be slow on certain remote fs's don't hold up our prompt
+		timeout 0.1 bash -c "$(declare -pf __r3_prompt_git); __r3_timeout_set=yes; __r3_prompt_git" || echo "\[\e[31m\][S]\[\e[0m\] "
+		return
 	fi
 
 	# Show git info in the prompt
@@ -411,10 +425,11 @@ pretty_custom_prompt() {
 		esac
 
 		local status="$(git status --porcelain 2>/dev/null)"
+		local statusColor=""
 		if [ -z "$status" ]; then
-			PS1="$PS1\[\033[1;32m\]"
+			statusColor="\[\033[1;32m\]"
 		else
-			PS1="$PS1\[\033[1;33m\]"
+			statusColor="\[\033[1;33m\]"
 		fi
 
 		# Try to show the current branch
@@ -428,71 +443,81 @@ pretty_custom_prompt() {
 			ref="$(git rev-parse --short HEAD 2>/dev/null)"
 		fi
 
-		PS1="$PS1($ref$behindBy)\[\033[0m\] "
+		echo "$statusColor($ref$behindBy)\[\033[0m\] "
 	fi
-
-	# Show venv name
-	local venv=""
-	[ -z "$VIRTUAL_ENV" ] || venv="\[\033[00;36m\][$(basename $VIRTUAL_ENV)]\[\033[00m\] "
-
-	less_pretty_prompt "$venv$PS1"
 }
 
-less_pretty_prompt() {
-	local prompt_prefix="$@"
+__r3_prompt_venv() {
+	# Show venv name
+	[ -z "$VIRTUAL_ENV" ] || echo "\[\033[00;36m\][$(basename "$VIRTUAL_ENV")]\[\033[00m\] "
+}
 
-	# Show only 2 dirs
-	local cwd=$(pwd | sed "s/$(echo $HOME | sed 's/\//\\\//g')/~/")
-	if [ $(echo $cwd | awk -F/ '{print NF}') -gt 2 ]; then
-		cwd="$(echo $cwd | awk -F/ '{print $(NF-1)"/"$NF}')"
-	fi
-
-	local path_color=""
-	[ -f ~/.hostname_color ] && path_color="\e[$(cat ~/.hostname_color)"
-	local prompt_char="$"
-
-	# Special root prompt
-	if [ $EUID -eq 0 ]; then
-		prompt_char="#"
-	fi
+__r3_prompt_host_and_user() {
+	local color="0;32"
 
 	local hostname=""
 	# Don't show hostname in containers (it doesn't matter
-	if [ ! -f /.dockerenv ] && [ -z "$path_color" ]; then
-		hostname="$HOSTNAME"
+	if [ ! -f /.dockerenv ]; then
+		hostname="${R3_MACHINE_NICKNAME:-$HOSTNAME}"
 	fi
+
+	local user="${USER}"
+	[ -z "$user" ] && user="$(whoami)"
 
 	# Hide the ryan username
-	local user="$(whoami)"
-	if [ "$user" != "$MAIN_USER" ]; then
-		if [ -n "$hostname" ]; then
-			hostname="$user@$hostname"
-		else
-			hostname="$user"
-		fi
+	if [ "$user" == "$R3_MAIN_USER" ]; then
+		user=""
 	fi
 
+	# Special root color
+	if [ "$user" == "root" ]; then
+		color="0;31"
+	fi
+
+	# If user and hostname are specified we want user@hostname
+	if [ -n "$user" ] && [ -n "$hostname" ]; then
+		user+="@"
+	fi
 
 	if [ -n "$hostname" ]; then
-		hostname="\[\e[00;32m\]$hostname\[\033[00m\]:"
+		hostname="\[\e[${color}m\]$user$hostname\[\033[00m\] "
 	fi
 
-	path_color="${path_color:-\033[01;34m}"
-	echo -ne "$prompt_prefix\[$path_color\]$hostname\[$path_color\]$cwd\[\033[00m\]$prompt_char "
+	echo "$hostname"
 }
 
-custom_prompt() {
-	local slow_msg="\[\e[31m\][S]\[\e[0m\] "
-	if command -v timeout >/dev/null; then
-		# Git commands can be slow on certain remote fs's don't hold up our prompt
-		PS1="$(timeout 0.1 bash -c "jobs_result='$(jobs -l)'; $(declare -pf pretty_custom_prompt); $(declare -pf less_pretty_prompt); pretty_custom_prompt" || less_pretty_prompt "$slow_msg")"
+__r3_prompt_path() {
+	local repoRoot="$(git rev-parse --show-toplevel 2>/dev/null)"
+	if [ -n "$repoRoot" ]; then
+		# If we're in a git repo show the top level folder and any subdirectories we're in
+		local base="$(dirname "$repoRoot")"
+		local path="$(realpath --relative-to="$base" "$(pwd)")"
 	else
-		PS1="$(jobs_result="$(jobs -l)" pretty_custom_prompt)"
+		local path='\w'
 	fi
+
+	echo "\[\e[0;34m\]$path\[\e[0m\] "
 }
 
-PROMPT_COMMAND=custom_prompt
-unset color_prompt 
+# Render the prompt using the segements specified in R3_PROMPT_SEGMENTS
+__r3_bash_prompt() {
+	PS1=""
+	for segment in ${R3_PROMPT_SEGMENTS[@]}; do
+		PS1+="$($segment)"
+	done
+}
+
+PROMPT_COMMAND=__r3_bash_prompt
+
+# Default prompt
+R3_PROMPT_SEGMENTS=(
+	__r3_prompt_jobs
+	__r3_prompt_venv
+	__r3_prompt_git
+	__r3_prompt_host_and_user
+	__r3_prompt_path
+)
+
 
 ############################################################
 # Keybinds                                                 #
