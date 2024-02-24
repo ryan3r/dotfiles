@@ -1,4 +1,14 @@
 ############################################################
+# Find this file and the dotfiles repo                     #
+############################################################
+
+__r3_source_file="$(realpath -- "${BASH_SOURCE[0]}")"
+
+# The path the dotfiles repo root IF git is installed AND we aren't running standalone
+__r3_dotfiles="$(git -C "$(dirname "$__r3_source_file")" rev-parse --show-toplevel 2>/dev/null)"
+
+
+############################################################
 # Load machine specific bashrc                             #
 ############################################################
 
@@ -53,25 +63,15 @@ command -v nvim >/dev/null && {
 
 [ -z "$R3_MAIN_USER" ] && export R3_MAIN_USER="ryan"
 
-path_add() {
+__r3_path_add() {
 	if ! echo $PATH | grep -E "(^|:)$1(:|$)" >/dev/null && [ -d "$1" ]; then
 		export PATH="$1:$PATH"
 	fi
 }
 
-dotfiles=""
-for bashrc in ~/.bashrc /etc/bash.bashrc; do
-       parent="$(dirname "$(readlink "$bashrc")")"
-
-       if [ "$(basename "$parent")" == "dotfiles" ]; then
-               dotfiles="$parent"
-               break
-       fi
-done
-
-path_add "$dotfiles/bin"
-
-unset path_add dotfiles
+if [ -n "$__r3_dotfiles" ]; then
+	__r3_path_add "$__r3_dotfiles/bin"
+fi
 
 
 ############################################################
@@ -192,8 +192,6 @@ fi
 # General                                                  #
 ############################################################
 
-__r3_source_file="$(realpath -- "${BASH_SOURCE[0]}")"
-
 add_section General
 mk_alias reload "unset __R3_NOT_NEW_SHELL ; source ${__r3_source_file}" "Reload ${__r3_source_file}"
 
@@ -222,6 +220,26 @@ if command -v python3 >/dev/null; then
 elif command -v python >/dev/null; then
 	mk_alias py python
 fi
+
+# Update dotfiles
+add_help updot "Update the dotfiles and or $__r3_source_file"
+updot() {
+	if [ -n "$__r3_dotfiles" ]; then
+		git -C "$__r3_dotfiles" pull --ff || return $?
+	else
+		echo "There are no update methods available on this system"
+		return 1
+	fi
+
+	# Fully restarting is preferrable because it clears aliases and
+	# variables but we shouldn't restart with stopped jobs.  So if
+	# we have stopped jobs we just resource ourself.
+	if [ $(jobs -l | wc -l) -eq 0 ]; then
+		exec bash
+	else
+		reload
+	fi
+}
 
 
 ############################################################
@@ -344,6 +362,7 @@ if command -v docker >/dev/null; then
 	mk_alias "dk" "${docker_sudo}docker kill"
 	mk_alias "dcp" "${docker_sudo}docker container prune"
 	mk_alias "dsp" "${docker_sudo}docker system prune"
+	mk_alias "dsdf" "${docker_sudo}docker system df"
 	mk_alias "dup" "${docker_sudo}docker compose up"
 	mk_alias "dud" "${docker_sudo}docker compose up -d"
 	mk_alias "ddn" "${docker_sudo}docker compose down"
