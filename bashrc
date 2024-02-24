@@ -579,14 +579,15 @@ unset add_help add_section
 __r3_greeter() {
 	local msg="Good "
 
-	if [ "$(date +%H)" -gt 5 ]; then
-		msg+="morning"
-	elif [ $(date +%H) -gt 11 ]; then
-		msg+="afternoon"
-	elif [ $(date +%H) -gt 18 ]; then
-		msg+="evening"
-	else
+	local hour=$(date +%H)
+	if [ $hour -lt 5 ] || [ $hour -gt 21 ]; then
 		msg+="night"
+	elif [ $hour -lt 12 ]; then
+		msg+="morning"
+	elif [ $hour -lt 18 ]; then
+		msg+="afternoon"
+	else
+		msg+="evening"
 	fi
 
 	local tmux_count="$(tmux ls 2>/dev/null | wc -l)"
