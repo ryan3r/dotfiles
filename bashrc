@@ -350,29 +350,54 @@ fi
 ############################################################
 
 if command -v docker >/dev/null; then
-	docker_sudo=""
+	__r3_docker_sudo=""
 	if [ ! -w /var/run/docker.sock ]; then
-		docker_sudo="sudo "
+		__r3_docker_sudo="sudo "
 	fi
 
 	add_section "Docker"
-	mk_alias "dp" "${docker_sudo}docker ps"
-	mk_alias "di" "${docker_sudo}docker images"
-	mk_alias "dr" "${docker_sudo}docker run --rm -it" "Docker run interactive and remove"
-	mk_alias "dk" "${docker_sudo}docker kill"
-	mk_alias "dcp" "${docker_sudo}docker container prune"
-	mk_alias "dsp" "${docker_sudo}docker system prune"
-	mk_alias "dsdf" "${docker_sudo}docker system df"
-	mk_alias "dup" "${docker_sudo}docker compose up"
-	mk_alias "dud" "${docker_sudo}docker compose up -d"
-	mk_alias "ddn" "${docker_sudo}docker compose down"
-	
+	mk_alias "dp" "${__r3_docker_sudo}docker ps"
+	mk_alias "di" "${__r3_docker_sudo}docker images"
+	mk_alias "dk" "${__r3_docker_sudo}docker kill"
+	mk_alias "dcp" "${__r3_docker_sudo}docker container prune"
+	mk_alias "dsp" "${__r3_docker_sudo}docker system prune"
+	mk_alias "dsdf" "${__r3_docker_sudo}docker system df"
+	mk_alias "dup" "${__r3_docker_sudo}docker compose up"
+	mk_alias "dud" "${__r3_docker_sudo}docker compose up -d"
+	mk_alias "ddn" "${__r3_docker_sudo}docker compose down"
+	mk_alias "dr" "${__r3_docker_sudo}docker run --rm -it" "Docker run interactive and remove"
+
+	add_help dkr "Like dr but mount cwd/git repo (R3_PORT)"
+	dkr() {
+		local repo_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+		local cwd="$(pwd)"
+		local mnt_dir="${repo_root:-${cwd}}"
+
+		local flags=""
+		if [ -n "$R3_PORT" ]; then
+			flags="-p ${R3_PORT}:${R3_PORT} -e R3_PORT=${R3_PORT} -e NODE_PORT=${R3_PORT}"
+		fi
+
+		${__r3_docker_sudo} docker run --rm -it \
+			$flags \
+			-v "${mnt_dir}:${mnt_dir}" -w "${cwd}" \
+			"$@"
+		return $?
+	}
+
+	mk_alias "dkru" 'dkr --user "$(id -u):$(id -g)"' "dkr but run as current user"
+
 	add_help 'dka' "Kill all containers"
 	dka() {
 		docker kill "$(docker ps -q)"
 	}
 
-	unset docker_sudo
+	add_section "Docker tool wrappers"
+
+	mk_alias "node.dkr" "dkru node:alpine node"
+	mk_alias "npm.dkr" "dkru node:alpine npm"
+	mk_alias "npx.dkr" "dkru node:alpine npx"
+	mk_alias "cargo.dkr" "dkru rust:alpine cargo"
 fi
 
 ############################################################
